@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="fr" dir="ltr" class="latin"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#17140F">
+<title>Le Chaudron · Nos menus</title>
+<style>
+:root{
+ --fond:#17140F; --fond-2:#201C16; --carte:#221E18; --carte-2:#2A251D;
+ --encre:#F4EDE1; --encre-douce:#B4A68F;
+ --cuivre:#E2622A; --cuivre-clair:#F08B4C; --cuivre-pale:#D9A86B;
+ --bord:#39322A; --bord-fort:#4D4237;
+ --alerte-fond:#3A1A13; --alerte-texte:#FFB9A2;
+ --vert:#9DC986;
+ color-scheme:dark;
+ --mono:ui-monospace,'SF Mono',SFMono-Regular,Menlo,Consolas,'DejaVu Sans Mono','Liberation Mono',monospace;
+ --titre:'Palatino Linotype',Palatino,'Book Antiqua','Iowan Old Style',Georgia,serif;
+ --corps:system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans','DejaVu Sans',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--encre);font:16.5px/1.55 var(--corps);background:var(--fond);
+ background-image:radial-gradient(120% 70% at 50% -10%,rgba(226,98,42,.14),transparent 60%);
+ background-attachment:fixed;
+ padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+/* ---------- couverture : le chaudron qui s'ouvre ---------- */
+#entree{position:fixed;inset:0;z-index:40;overflow:hidden;background:var(--fond)}
+#entree.parti{display:none}
+.volet{position:absolute;left:0;right:0;height:50.2%;overflow:hidden;background:#13100C;
+ transition:transform 1.15s cubic-bezier(.62,0,.22,1)}
+.volet.haut{top:0;background-image:radial-gradient(80% 110% at 50% 100%,rgba(226,98,42,.16),transparent 62%)}
+.volet.bas{bottom:0;background-image:radial-gradient(80% 110% at 50% 0%,rgba(226,98,42,.26),transparent 68%)}
+#entree.ouvert .volet.haut{transform:translateY(-101%)}
+#entree.ouvert .volet.bas{transform:translateY(101%)}
+
+/* le couvercle vit dans le volet du haut, la marmite dans celui du bas :
+   chaque moitié part avec son volet, le chaudron s'ouvre. */
+.couvercle{position:absolute;left:50%;bottom:0;width:min(62vw,268px);height:auto;
+ transform:translateX(-50%);transform-origin:50% 100%;
+ transition:transform .95s cubic-bezier(.5,-0.2,.3,1.4)}
+#entree.ouvert .couvercle{transform:translateX(-50%) translateY(-22px) rotate(-11deg)}
+#entree.fremit .couvercle{animation:fremir .46s ease-in-out}
+@keyframes fremir{0%,100%{translate:0 0}28%{translate:0 -6px}55%{translate:2px -2px}80%{translate:-1px -3px}}
+.marmite-svg{position:absolute;left:50%;top:0;width:min(62vw,268px);height:auto;transform:translateX(-50%)}
+.vapeur{position:absolute;left:50%;top:calc(50% - 168px);width:min(48vw,200px);height:120px;
+ transform:translateX(-50%);z-index:2;opacity:0;transition:opacity .4s .12s}
+#entree.ouvert .vapeur{opacity:1}
+.vapeur path{fill:none;stroke:rgba(255,232,205,.55);stroke-width:5;stroke-linecap:round;
+ stroke-dasharray:16 160;animation:monte 2.6s linear infinite}
+.vapeur path:nth-child(2){animation-duration:3.3s;animation-delay:-.8s}
+.vapeur path:nth-child(3){animation-duration:2.9s;animation-delay:-1.6s}
+@keyframes monte{to{stroke-dashoffset:-176}}
+.titre-couverture{position:absolute;left:0;right:0;top:min(42vw,186px);text-align:center;padding:0 22px;
+ transition:opacity .4s,transform .65s}
+#entree.ouvert .titre-couverture{opacity:0;transform:translateY(18px)}
+.titre-couverture h1{margin:0;font-family:var(--titre);font-weight:700;font-size:clamp(40px,12.5vw,64px);line-height:1;
+ color:var(--cuivre-clair)}
+.titre-couverture p{margin:11px 0 0;font-family:var(--mono);font-size:clamp(11px,3.2vw,14px);letter-spacing:.14em;
+ text-transform:uppercase;color:var(--encre-douce)}
+.invite{position:absolute;left:0;right:0;bottom:6%;text-align:center;z-index:6;
+ font:600 12.5px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#8B7D6B;transition:opacity .3s}
+#entree.ouvert .invite{opacity:0}
+.invite .fleche{display:block;margin:9px auto 0;width:16px;height:16px;
+ border-right:2px solid var(--cuivre);border-bottom:2px solid var(--cuivre);transform:rotate(45deg);
+ animation:descend 1.7s ease-in-out infinite}
+@keyframes descend{0%,100%{transform:rotate(45deg) translate(0,0);opacity:.4}50%{transform:rotate(45deg) translate(5px,5px);opacity:1}}
+#btn-entrer{position:absolute;left:50%;bottom:4%;transform:translateX(-50%);z-index:7;opacity:0;width:1px;height:1px;overflow:hidden}
+@media (prefers-reduced-motion:reduce){.volet,.couvercle,.titre-couverture{transition-duration:.01s}
+ .invite .fleche,.vapeur path{animation:none}.couvercle{animation:none!important}}
+
+/* ---------- page ---------- */
+.page{max-width:680px;margin:0 auto 44px;background:var(--fond)}
+.entete{text-align:center;padding:26px 18px 4px}
+.entete .logo{width:74px;height:auto;display:block;margin:0 auto;color:var(--cuivre)}
+.entete h1{margin:10px 0 0;font-family:var(--titre);font-weight:700;font-size:clamp(34px,10vw,46px);line-height:1;color:var(--cuivre-clair)}
+.entete .lieu{margin:7px 0 0;font-family:var(--mono);font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--encre-douce)}
+
+.bandeau-demo{margin:18px 18px 0;padding:13px 15px;border:1.5px solid var(--cuivre);border-radius:10px;
+ background:rgba(226,98,42,.09);color:var(--encre);font-size:14px;line-height:1.5;display:flex;gap:11px;align-items:flex-start}
+.bandeau-demo b{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--cuivre-clair);
+ border:1px solid var(--cuivre);border-radius:4px;padding:3px 7px;flex-shrink:0;margin-top:1px}
+
+.barre{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;padding:10px 12px 0;
+ background:color-mix(in srgb,var(--fond) 94%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+ border-bottom:1px solid var(--bord)}
+.outils{display:flex;gap:8px}
+.outil{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:48px;padding:8px 10px;
+ border-radius:9px;border:1.5px solid var(--bord-fort);background:var(--carte);color:var(--encre);
+ font:650 14px/1.2 var(--corps);cursor:pointer;min-width:0}
+.outil .texte{white-space:normal;line-height:1.15;text-align:center}
+.outil.actif{border-color:var(--cuivre);color:var(--cuivre-clair)}
+.drapeau{font-size:19px;line-height:1;flex-shrink:0}
+.chevron{width:7px;height:7px;border-right:2px solid var(--cuivre);border-bottom:2px solid var(--cuivre);
+ transform:rotate(45deg) translateY(-2px);flex-shrink:0}
+.compteur{display:inline-grid;place-items:center;min-width:21px;height:21px;border-radius:11px;
+ background:var(--cuivre);color:#1A120B;font:700 12px var(--mono);padding:0 6px}
+.onglets{display:flex;gap:6px;margin:9px 0 0;padding:0 0 9px;overflow-x:auto;scrollbar-width:none}
+.onglets::-webkit-scrollbar{display:none}
+.onglet{flex:1 0 auto;min-height:40px;padding:8px 16px;border-radius:999px;border:1.5px solid var(--bord-fort);
+ background:transparent;color:var(--encre-douce);font:650 13px/1.2 var(--mono);letter-spacing:.06em;
+ text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.onglet.actif{border-color:var(--cuivre);background:rgba(226,98,42,.14);color:var(--cuivre-clair)}
+
+.contenu{padding:0 18px}
+.enveloppe{padding-top:6px}
+.service>h2,.formule h2{font-family:var(--titre);font-weight:700;color:var(--cuivre-clair)}
+.formule{margin-top:22px;padding:17px 16px 14px;border:1.5px solid var(--cuivre);border-radius:12px;background:var(--carte)}
+.formule h2{margin:0;text-align:center;font-size:27px;display:flex;align-items:baseline;justify-content:center;gap:10px;flex-wrap:wrap}
+.formule-prix{font-family:var(--mono);font-size:21px;color:var(--cuivre);font-weight:700}
+.formule ul{list-style:none;margin:10px 0 0;padding:0}
+.formule li{display:flex;align-items:baseline;gap:9px;padding:5px 0;font-size:15.5px;color:var(--encre-douce)}
+.pointilles{flex:1;border-bottom:1.5px dotted var(--bord-fort);min-width:14px;transform:translateY(-4px)}
+.formule .prix{font-family:var(--mono);font-weight:700;color:var(--encre);font-size:15px}
+
+.filet{display:block;width:180px;height:14px;margin:7px auto 12px;color:var(--cuivre);opacity:.8}
+.categorie{margin-top:26px;scroll-margin-top:148px}
+.categorie>h2{margin:0;text-align:center;font-family:var(--mono);font-weight:700;font-size:14px;letter-spacing:.2em;
+ text-transform:uppercase;color:var(--cuivre)}
+.categorie .note{margin:0 auto 14px;max-width:34ch;text-align:center;font-size:13px;font-style:italic;color:var(--encre-douce)}
+.plats{display:flex;flex-direction:column;gap:9px}
+.plat{background:var(--carte);border:1px solid var(--bord);border-radius:9px;padding:13px 15px}
+.plat-tete{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.plat h3{margin:0;font-family:var(--corps);font-size:17px;line-height:1.3;font-weight:600;min-width:0;overflow-wrap:anywhere;color:var(--encre)}
+.prix,.supplement{font-family:var(--mono);font-weight:700;font-size:14.5px;white-space:nowrap;color:var(--encre)}
+.supplement{color:var(--cuivre)}
+
+.alerte{margin:9px 0 0;padding:6px 10px;border-radius:6px;background:var(--alerte-fond);color:var(--alerte-texte);font-weight:700;font-size:13.5px}
+.allergenes{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:9px}
+.etiquette{font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--encre-douce);letter-spacing:.14em;text-transform:uppercase}
+.exemple-tag{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--cuivre-clair);
+ border:1px solid var(--cuivre);border-radius:4px;padding:2px 6px}
+.allergene{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:3px 10px 3px 3px;
+ border-radius:999px;background:var(--carte-2);color:var(--encre)}
+[dir=rtl] .allergene{padding:3px 3px 3px 10px}
+.allergene b,.legende b{display:inline-grid;place-items:center;width:21px;height:21px;border-radius:50%;
+ background:var(--cuivre);color:#1A120B;font:700 11.5px var(--mono);flex-shrink:0}
+.allergene.touche{background:var(--alerte-fond);color:var(--alerte-texte);outline:1.5px solid currentColor}
+.allergene.retirable{border:1px dashed var(--cuivre-pale)}
+.etoile{font-style:normal;font-weight:800;color:var(--cuivre-pale);margin-inline-start:1px}
+.note-retirable{margin:7px 0 0;font-size:12.5px;color:var(--cuivre-pale);font-style:italic}
+.attente{margin:8px 0 0;font-size:12.5px;color:var(--encre-douce);font-style:italic}
+.aucun{margin:8px 0 0;font-size:13px;font-weight:650;color:var(--vert)}
+.plat.exclu{border-color:var(--alerte-texte);box-shadow:inset 3px 0 0 var(--alerte-texte)}
+[dir=rtl] .plat.exclu{box-shadow:inset -3px 0 0 var(--alerte-texte)}
+.plat.exclu .plat-tete{opacity:.5}
+.resume-filtre{margin:14px 0 0;font-weight:700;color:var(--vert);text-align:center}
+
+.enfant{position:relative;margin-top:26px;padding:18px 16px 15px;border:1.5px dashed var(--bord-fort);border-radius:12px;
+ background:var(--carte);overflow:hidden;scroll-margin-top:148px}
+.enfant .marmite{position:absolute;inset:auto -4% -16% auto;width:130px;color:var(--cuivre);opacity:.08;pointer-events:none}
+.enfant-tete{position:relative;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.enfant h2{margin:0;font-family:var(--titre);font-size:22px;color:var(--cuivre-clair)}
+.enfant .sous{position:relative;margin:4px 0 0;color:var(--encre-douce);font-size:15px}
+
+/* carte des vins */
+.service>h2{margin:24px 0 0;text-align:center;font-size:28px}
+.vins-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.vins-bloc{background:var(--carte);border:1px solid var(--bord);border-radius:10px;padding:14px 16px}
+.vins-bloc h3{margin:0 0 8px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.18em;
+ text-transform:uppercase;color:var(--cuivre)}
+.vins-groupe{margin-top:10px}
+.vins-groupe h4{margin:0 0 3px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.14em;
+ text-transform:uppercase;color:var(--encre-douce)}
+.vins-bloc ul{list-style:none;margin:0;padding:0}
+.vins-bloc li{display:flex;align-items:baseline;gap:8px;padding:4px 0;font-size:15px}
+.vin-nom{min-width:0;overflow-wrap:anywhere}
+.vin-prix{font-family:var(--mono);font-weight:700;font-size:13.5px;white-space:nowrap;color:var(--encre)}
+.vin-prix small{font-weight:400;color:var(--encre-douce);font-size:11px}
+.service>.vins-bloc{margin-top:12px}
+
+footer{margin-top:30px;padding:0 18px;color:var(--encre-douce);font-size:13.5px;text-align:center}
+footer p{margin:6px 0}
+.legende-titre{font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+ color:var(--cuivre);margin:24px 0 10px}
+.legende{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+ gap:6px 12px;text-align:start}
+.legende li{display:flex;align-items:center;gap:8px;color:var(--encre);flex-wrap:wrap;font-size:13.5px}
+.fr{color:var(--encre-douce);font-size:11.5px}
+
+dialog{border:0;padding:0;border-radius:12px;max-width:min(560px,calc(100vw - 22px));width:100%;
+ background:var(--fond-2);color:var(--encre);box-shadow:0 24px 70px rgba(0,0,0,.6)}
+dialog::backdrop{background:rgba(8,6,4,.72)}
+.dlg-tete{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--bord)}
+.dlg-tete h2{margin:0;font-family:var(--titre);font-weight:700;font-size:20px;color:var(--cuivre-clair)}
+.fermer{width:42px;height:42px;border-radius:50%;border:1px solid var(--bord-fort);background:transparent;color:var(--encre);font-size:19px;cursor:pointer;flex-shrink:0}
+.dlg-corps{padding:14px 18px;max-height:60vh;overflow:auto}
+.langues{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px}
+.langues button{min-height:46px;border-radius:8px;border:1.5px solid var(--bord-fort);background:var(--carte);
+ color:var(--encre);font:650 15px/1.2 var(--corps);cursor:pointer;padding:8px;display:flex;align-items:center;gap:8px}
+.langues button[aria-pressed=true]{border-color:var(--cuivre);background:rgba(226,98,42,.14);color:var(--cuivre-clair)}
+.cases{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:8px}
+.case{display:flex;align-items:center;gap:10px;min-height:46px;padding:8px 10px;border-radius:8px;
+ border:1.5px solid var(--bord-fort);cursor:pointer;background:var(--carte)}
+.case input{width:19px;height:19px;accent-color:var(--cuivre);flex-shrink:0}
+.case:has(input:checked){border-color:var(--cuivre);background:rgba(226,98,42,.12)}
+.case b{display:inline-grid;place-items:center;width:21px;height:21px;border-radius:50%;background:var(--cuivre);
+ color:#1A120B;font:700 11.5px var(--mono);flex-shrink:0}
+.dlg-pied{display:flex;gap:10px;justify-content:flex-end;padding:12px 18px 16px;border-top:1px solid var(--bord);flex-wrap:wrap}
+.btn{min-height:44px;padding:10px 18px;border-radius:8px;border:1.5px solid var(--bord-fort);background:transparent;
+ color:var(--encre);font:650 15px var(--corps);cursor:pointer}
+.btn.principal{background:var(--cuivre);border-color:var(--cuivre);color:#1A120B}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--cuivre-pale);outline-offset:2px}
+.anim .plat,.anim .formule,.anim .enfant,.anim .vins-bloc{opacity:0;transform:translateY(10px);
+ transition:opacity .5s ease,transform .5s ease}
+.anim .plat.vu,.anim .formule.vu,.anim .enfant.vu,.anim .vins-bloc.vu{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}
+ .anim .plat,.anim .formule,.anim .enfant,.anim .vins-bloc{opacity:1;transform:none;transition:none}}
+[hidden]{display:none!important}
+</style></head>
+<body>
+<div id="entree">
+  <div class="volet haut" aria-hidden="true">
+    <svg class="couvercle" viewBox="0 0 320 112">
+      <ellipse cx="160" cy="20" rx="14" ry="11" fill="#D98A4E"/>
+      <rect x="152" y="28" width="16" height="10" fill="#B4642F"/>
+      <path d="M160 36c-54 0-99 25-112 54h224c-13-29-58-54-112-54z" fill="#8E4A20"/>
+      <path d="M160 42c-46 0-85 20-98 44h20c11-17 41-30 78-30s67 13 78 30h20c-13-24-52-44-98-44z" fill="#C9763C"/>
+      <rect x="22" y="88" width="276" height="15" rx="7.5" fill="#D98A4E"/>
+      <rect x="22" y="88" width="276" height="6" rx="3" fill="#F0A469" opacity=".55"/>
+    </svg>
+  </div>
+  <div class="volet bas" aria-hidden="true">
+    <svg class="marmite-svg" viewBox="0 0 320 156">
+      <rect x="18" y="0" width="284" height="15" rx="7.5" fill="#D98A4E"/>
+      <path d="M38 15h244v72c0 38-31 63-78 63h-88c-47 0-78-25-78-63z" fill="#241710"/>
+      <path d="M38 15h244v72c0 38-31 63-78 63h-88c-47 0-78-25-78-63z" fill="none" stroke="#A85B29" stroke-width="5"/>
+      <path d="M38 36H17a17 17 0 0 0 0 34h21M282 36h21a17 17 0 0 1 0 34h-21" fill="none" stroke="#A85B29" stroke-width="6"/>
+      <circle cx="78" cy="30" r="4.5" fill="#C9763C"/><circle cx="160" cy="30" r="4.5" fill="#C9763C"/><circle cx="242" cy="30" r="4.5" fill="#C9763C"/>
+      <path d="M92 156c13-17 28-17 41 0M133 156c13-17 28-17 41 0M174 156c12-15 25-15 37 0" fill="none" stroke="#E2622A" stroke-width="7" stroke-linecap="round" opacity=".9"/>
+    </svg>
+    <div class="titre-couverture">
+      <h1>Le Chaudron</h1>
+      <p>43 rue Saint-Rémi · Bordeaux</p>
+    </div>
+  </div>
+  <svg class="vapeur" viewBox="0 0 200 120" preserveAspectRatio="none">
+      <path d="M62 120c0-26 17-30 17-52S60 44 60 24"/>
+      <path d="M100 120c0-30 19-34 19-56S98 40 98 18"/>
+      <path d="M138 120c0-24 15-28 15-48s-17-24-17-44"/>
+    </svg>
+  <p class="invite">Touchez pour ouvrir<span class="fleche" aria-hidden="true"></span></p>
+  <button id="btn-entrer" type="button">Voir les menus</button>
+</div>
+
+<div class="page">
+  <header class="entete">
+    <svg class="logo" viewBox="0 0 120 108" aria-hidden="true">
+      <rect x="8" y="16" width="104" height="11" rx="5.5" fill="currentColor"/>
+      <path d="M20 31h80v30c0 17-14 29-33 29H53c-19 0-33-12-33-29z" fill="none" stroke="currentColor" stroke-width="6"/>
+      <path d="M20 40H9a9 9 0 0 0 0 18h11zM100 40h11a9 9 0 0 1 0 18h-11z" fill="none" stroke="currentColor" stroke-width="5"/>
+      <path d="M44 14c0-8 8-9 8-16M60 12c0-9 9-10 9-12M76 14c0-8 8-9 8-14" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" opacity=".6"/>
+      <path d="M40 104c7-9 15-9 22 0M62 104c7-9 15-9 22 0" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity=".75"/>
+    </svg>
+    <h1>Le Chaudron</h1>
+    <p class="lieu" id="accroche">Brasserie bordelaise, rue Saint-Rémi</p>
+  </header>
+
+  <p class="bandeau-demo" id="bandeau-demo"><b>Démo</b><span id="txt-demo">Démonstration — carte reprise du Chaudron. Allergènes non renseignés : à valider par le restaurant.</span></p>
+
+  <nav class="barre" aria-label="Outils">
+    <div class="outils">
+      <button class="outil" id="btn-langue" type="button">
+        <span class="drapeau" id="drapeau-langue" aria-hidden="true">🇫🇷</span>
+        <span class="texte" id="nom-langue">Français</span>
+        <span class="chevron" aria-hidden="true"></span>
+      </button>
+      <button class="outil" id="btn-allergies" type="button">
+        <span class="texte" id="txt-allergies">Liste des allergènes</span>
+        <span class="compteur" id="compteur" hidden>0</span>
+      </button>
+    </div>
+    <div class="onglets" id="onglets" role="tablist"></div>
+  </nav>
+
+  <div class="contenu">
+    <main id="carte"><div class="enveloppe" data-enveloppe="midi"><section class="service" id="sec-midi" data-service="midi"><div class="formule"><h2>Menu du midi<span class="formule-prix">17,50 €</span></h2><svg class="filet" viewBox="0 0 240 14" aria-hidden="true"><path d="M8 7h88M144 7h88" stroke="currentColor" stroke-width="1.1"/><path d="M120 1l5.5 6-5.5 6-5.5-6z" fill="currentColor"/><circle cx="104" cy="7" r="1.8" fill="currentColor"/><circle cx="136" cy="7" r="1.8" fill="currentColor"/></svg><ul><li><span>Entrée + Plat ou Plat + Dessert</span><span class="pointilles" aria-hidden="true"></span><span class="prix">14,50 €</span></li><li><span>Plat seul</span><span class="pointilles" aria-hidden="true"></span><span class="prix">11 €</span></li></ul></div><section class="categorie" id="sec-midi-entrees"><h2>Entrées</h2><svg class="filet" viewBox="0 0 240 14" aria-hidden="true"><path d="M8 7h88M144 7h88" stroke="currentColor" stroke-width="1.1"/><path d="M120 1l5.5 6-5.5 6-5.5-6z" fill="currentColor"/><circle cx="104" cy="7" r="1.8" fill="currentColor"/><circle cx="136" cy="7" r="1.8" fill="currentColor"/></svg><div class="plats"><article class="plat" data-plat="grenier"><div class="plat-tete"><h3>Assiette de grenier médocain</h3></div></article><article class="plat" data-plat="foiegras"><div class="plat-tete"><h3>Foie gras sur toast</h3><span class="supplement">+2 €</span></div><div class="allergenes"><span class="exemple-tag">EXEMPLE</span><span class="etiquette">Contient</span><span class="allergene retirable"><b>1</b>Gluten<i class="etoile" aria-hidden="true">*</i></span></div><p class="note-retirable">* Peut être retiré du plat : demandez à votre serveur.</p></article><article class="plat" data-plat="escargots"><div class="plat-tete"><h3>Escargots à la persillade</h3><span class="supplement">+2 €</span></div><div class="allergenes"><span class="exemple-tag">EXEMPLE</span><span class="etiquette">Contient</span><span class="allergene"><b>7</b>Lait</span></div></article><article class="plat" data-plat="crevettesMayo"><div class="plat-tete"><h3>Crevettes fraîches mayonnaise</h3></div><div class="allergenes"><span class="exemple-tag">EXEMPLE</span><span class="etiquette">Contient</span><span class="allergene"><b>2</b>Crustacés</span><span class="allergene retirable"><b>3</b>Œufs<i class="etoile" aria-hidden="true">*</i></span></div><p class="note-retirable">* Peut être retiré du plat : demandez à votre serveur.</p></article><article class="plat" data-plat="tomates"><div class="plat-tete"><h3>Salade de tomates d&#39;Antan</h3></div></article><article class="plat" data-plat="entreeJour"><div class="plat-tete"><h3>Entrée du jour</h3></div></article></div></section><section class="categorie" id="sec-midi-plats"><h2>Plats</h2><svg class="filet" viewBox="0 0 240 14" aria-hidden="true"><path d="M8 7h88M144 7h88" stroke="currentColor" stroke-width="1.1"/><path d="M120 1l5.5 6-5.5 6-5.5-6z" fill="currentColor"/><circle cx="104" cy="7" r="1.8" fill="currentColor"/><circle cx="136" cy="7" r="1.8" fill="currentColor"/></svg><p class="note">Servis avec frites maison ou accompagnement au choix</p><div class="plats"><article class="plat" data-plat="tartare"><div class="plat-tete"><h3>Tartare de bœuf frais haché</h3></div></article><article class="plat" data-plat="platJour"><div class="plat-tete"><h3>Plat du jour</h3></div></article><article class="plat" data-plat="omelette"><div class="plat-tete"><h3>Omelette aux champignons</h3></div></article><article class="plat" data-plat="magret"><div class="plat-tete"><h3>Magret de canard entier, sauce au poivre</h3><span class="supplement">+9,50 €</span></div></article><article class="plat" data-plat="burgerM"><div class="plat-tete"><h3>Burger maison haché (ou végétarien)</h3></div></article><article class="plat" data-plat="pieceBoeuf"><div class="plat-tete"><h3>Pièce de bœuf grillée</h3></div></article><article class="plat" data-plat="entrecote"><div class="plat-tete"><h3>Entrecôte aux échalotes</h3><span class="supplement">+8 €</span></div></article></div></section><section class="categorie" id="sec-midi-desserts"><h2>Desserts</h2><svg class="filet" viewBox="0 0 240 14" aria-hidden="true"><path d="M8 7h88M144 7h88" stroke="currentColor" stroke-width="1.1"/><path d="M120 1l5.5 6-5.5 6-5.5-6z" fill="currentColor"/><circle cx="104" cy="7" r="1.8" fill="currentColor"/><circle cx="136" cy="7" r="1.8" fill="currentColor"/></svg><div class="plats"><article class="plat" data-plat="fromageBlanc"><div class="plat-tete"><h3>Fromage blanc</h3></div></article><article class="plat" data-plat="caneles"><div class="plat-tete"><h3>Canelés</h3></div><div class="allergenes"><span class="exemple-tag">EXEMPLE</span><span class="etiquette">Contient</span><span class="allergene"><b>1</b>Gluten</span><span class="allergene"><b>3</b>Œufs</span><span class="allergene"><b>7</b>Lait</span></div></article><article class="plat" data-plat="fromages"><div class="plat-tete"><h3>Assiette de fromages</h3></div></article><article class="plat" data-plat="glace2"><div class="plat-tete"><h3>Deux boules de glace</h3></div></article><article class="plat" data-plat="basque"><div class="plat-tete"><h3>Gâteau basque</h3></div></article><article class="plat" data-plat="dessertJour"><div class="plat-tete"><h3>Dessert du jour</h3></div></article></div></section><section class="enfant" id="sec-enfant-midi"><svg class="marmite" viewBox="0 0 120 100" aria-hidden="true" fill="currentColor"><path d="M18 40h84v26a20 20 0 0 1-20 20H38a20 20 0 0 1-20-20z" opacity=".9"/><rect x="10" y="32" width="100" height="10" rx="5"/><path d="M4 48h10v14H4a7 7 0 0 1 0-14zM106 48h10a7 7 0 0 1 0 14h-10z"/></svg><div class="enfant-tete"><h2>Menu enfant</h2><span class="prix">8 €</span></div><p class="sous">Steak haché, frites et une boule de glace</p></section></section></div><div class="enveloppe" data-enveloppe="soir"><section class="service" id="sec-soir" data-service="soir"><div class="formule"><h2>Menu du soir<span class="formule-prix">22 €</span></h2><svg class="filet" viewBox="0 0 240 14" aria-hidden="true"><path d="M8 7h88M144 7h88" stroke="currentColor" stroke-width="1.1"/><path d="M120 1l5.5 6-5.5 6-5.5-6z" fill="currentColor"/><circle cx="104" cy="7" r="1.8" fill="currentColor"/><circle cx="136" cy="7" r="1.8" fill="currentColor"/></svg><ul><li><span>Entrée + Plat ou Plat + Dessert</span><span class="pointilles" aria-hidden="true"></span><span class="prix">17,75 €</span></li><li><span>Plat seul</span><span class="pointilles" aria-hidden="true"></span><span class="prix">13,50 €</span></li></ul></div><section class="categorie" id="sec-soir-entrees"><h2>Entrées</h2><svg class="filet" viewBox="0 0 240 14" aria-hidden="true"><path d="M8 7h88M144 7h88" stroke="currentColor" stroke-width="1.1"/><path d="M120 1l5.5 6-5.5 6-5.5-6z" fill="currentColor"/><circle cx="104" cy="7" r="1.8" fill="currentColor"/><circle cx="136" cy="7" r="1.8" fill="currentColor"/></svg><div class="plats"><article class="plat" data-plat="chevre"><div class="plat-tete"><h3>Salade de chèvre chaud</h3></div></article><article class="plat" data-plat="gesiers"><div class="plat-tete"><h3>Salade de gésiers</h3></div></article><article class="plat" data-plat="foiegras"><div class="plat-tete"><h3>Foie gras sur toast</h3><span class="supplement">+2 €</span></div><div class="allergenes"><span class="exemple-tag">EXEMPLE</span><span class="etiquette">Contient</span><span class="allergene retirable"><b>1</b>Gluten<i class="etoile" aria-hidden="true">*</i></span></div><p class="note-retirable">* Peut être retiré du plat : demandez à votre serveur.</p></article><article class="plat" data-plat="serrano"><div class="plat-tete"><h3>Assiette de jambon serrano</h3></div></article><article class="plat" data-plat="escargotsCass"><div class="plat-tete"><h3>Cassolette d&#39;escargots à la persillade</h3></div></article><article class="plat" data-plat="crudites"><div class="plat-tete"><h3>Salade de crudités</h3></div></article><article class="plat" data-plat="grenier"><div class="plat-tete"><h3>Assiette de grenier médocain</h3></div></article></div></section><section class="categorie" id="sec-soir-plats"><h2>Plats</h2><svg class="filet" viewBox="0 0 240 14" aria-hidden="true"><path d="M8 7h88M144 7h88" stroke="currentColor" stroke-width="1.1"/><path d="M120 1l5.5 6-5.5 6-5.5-6z" fill="currentColor"/><circle cx="104" cy="7" r="1.8" fill="currentColor"/><circle cx="136" cy="7" r="1.8" fill="currentColor"/></svg><p class="note">Servis avec frites maison ou accompagnement au choix</p><div class="plats"><article class="plat" data-plat="poulet"><div class="plat-tete"><h3>Filet de poulet, sauce au poivre</h3></div></article><article class="plat" data-plat="entrecote"><div class="plat-tete"><h3>Entrecôte aux échalotes</h3><span class="supplement">+6 €</span></div></article><article class="plat" data-plat="lentilles"><div class="plat-tete"><h3>Bol de lentilles et ses petits légumes</h3></div></article><article class="plat" data-plat="crevettesPoele"><div class="plat-tete"><h3>Poêlée de crevettes en persillade (ou fraîches)</h3></div></article><article class="plat" data-plat="magret"><div class="plat-tete"><h3>Magret de canard entier, sauce au poivre</h3><span class="supplement">+7,50 €</span></div></article><article class="plat" data-plat="tartare"><div class="plat-tete"><h3>Tartare de bœuf frais haché</h3></div></article><article class="plat" data-plat="burgerS"><div class="plat-tete"><h3>Burger haché (maison ou végan)</h3></div></article><article class="plat" data-plat="bavette"><div class="plat-tete"><h3>Bavette d&#39;aloyau</h3></div></article><article class="plat" data-plat="cuisseConfite"><div class="plat-tete"><h3>Cuisse de canard confite</h3></div></article><article class="plat" data-plat="omelette"><div class="plat-tete"><h3>Omelette aux champignons</h3></div></article></div></section><section class="categorie" id="sec-soir-desserts"><h2>Desserts</h2><svg class="filet" viewBox="0 0 240 14" aria-hidden="true"><path d="M8 7h88M144 7h88" stroke="currentColor" stroke-width="1.1"/><path d="M120 1l5.5 6-5.5 6-5.5-6z" fill="currentColor"/><circle cx="104" cy="7" r="1.8" fill="currentColor"/><circle cx="136" cy="7" r="1.8" fill="currentColor"/></svg><div class="plats"><article class="plat" data-plat="basque"><div class="plat-tete"><h3>Gâteau basque</h3></div></article><article class="plat" data-plat="fromages"><div class="plat-tete"><h3>Assiette de fromages</h3></div></article><article class="plat" data-plat="fromageBlanc"><div class="plat-tete"><h3>Fromage blanc</h3></div></article><article class="plat" data-plat="caneles"><div class="plat-tete"><h3>Canelés</h3></div><div class="allergenes"><span class="exemple-tag">EXEMPLE</span><span class="etiquette">Contient</span><span class="allergene"><b>1</b>Gluten</span><span class="allergene"><b>3</b>Œufs</span><span class="allergene"><b>7</b>Lait</span></div></article><article class="plat" data-plat="coulant"><div class="plat-tete"><h3>Coulant au chocolat</h3></div></article><article class="plat" data-plat="liegeois"><div class="plat-tete"><h3>Café ou chocolat liégeois</h3></div></article><article class="plat" data-plat="tatin"><div class="plat-tete"><h3>Tarte Tatin</h3></div></article><article class="plat" data-plat="glace2"><div class="plat-tete"><h3>Deux boules de glace</h3></div></article></div></section><section class="enfant" id="sec-enfant-soir"><svg class="marmite" viewBox="0 0 120 100" aria-hidden="true" fill="currentColor"><path d="M18 40h84v26a20 20 0 0 1-20 20H38a20 20 0 0 1-20-20z" opacity=".9"/><rect x="10" y="32" width="100" height="10" rx="5"/><path d="M4 48h10v14H4a7 7 0 0 1 0-14zM106 48h10a7 7 0 0 1 0 14h-10z"/></svg><div class="enfant-tete"><h2>Menu enfant</h2><span class="prix">8 €</span></div><p class="sous">Steak haché, frites et une boule de glace</p></section></section></div><div class="enveloppe" data-enveloppe="vins"><section class="service" id="sec-vins" data-service="vins"><h2>Carte des vins</h2><svg class="filet" viewBox="0 0 240 14" aria-hidden="true"><path d="M8 7h88M144 7h88" stroke="currentColor" stroke-width="1.1"/><path d="M120 1l5.5 6-5.5 6-5.5-6z" fill="currentColor"/><circle cx="104" cy="7" r="1.8" fill="currentColor"/><circle cx="136" cy="7" r="1.8" fill="currentColor"/></svg><div class="vins-grille"><div class="vins-bloc"><h3>Au verre</h3><div class="vins-groupe"><h4>Rouge</h4><ul><li><span class="vin-nom">Graves</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">3 €</span></li><li><span class="vin-nom">Haut-Médoc</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">5 €</span></li></ul></div><div class="vins-groupe"><h4>Rosé</h4><ul><li><span class="vin-nom">Sauvignon</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">3 €</span></li></ul></div><div class="vins-groupe"><h4>Blanc</h4><ul><li><span class="vin-nom">Sauvignon</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">3 €</span></li><li><span class="vin-nom">Sauternes</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">5 €</span></li></ul></div></div><div class="vins-bloc"><h3>Carafes</h3><ul><li><span class="vin-nom">1/4 L</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">6 €</span></li><li><span class="vin-nom">1/2 L</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">11 €</span></li><li><span class="vin-nom">1 L</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">18 €</span></li></ul></div></div><div class="vins-bloc"><h3>Bouteilles</h3><div class="vins-groupe"><h4>Rouge</h4><ul><li><span class="vin-nom">Bordeaux Réserve</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">16 € <small>75 cl</small> · 11 € <small>35 cl</small></span></li><li><span class="vin-nom">Graves</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">19 € <small>75 cl</small></span></li><li><span class="vin-nom">Haut-Médoc</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">19 € <small>75 cl</small></span></li><li><span class="vin-nom">Lussac Saint-Émilion</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">21 € <small>75 cl</small> · 14 € <small>35 cl</small></span></li><li><span class="vin-nom">Pessac-Léognan</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">27 € <small>75 cl</small></span></li><li><span class="vin-nom">Saint-Émilion Grand Cru</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">28 € <small>75 cl</small></span></li></ul></div><div class="vins-groupe"><h4>Blanc</h4><ul><li><span class="vin-nom">Sauvignon</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">15 € <small>75 cl</small></span></li><li><span class="vin-nom">Entre-deux-Mers</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">17 € <small>75 cl</small> · 13 € <small>35 cl</small></span></li><li><span class="vin-nom">Sauternes</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">28 € <small>75 cl</small></span></li></ul></div><div class="vins-groupe"><h4>Rosé</h4><ul><li><span class="vin-nom">Sauvignon</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">15 € <small>75 cl</small></span></li><li><span class="vin-nom">Côtes de Provence</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">19 € <small>75 cl</small> · 15 € <small>35 cl</small></span></li></ul></div></div></section></div></main>
+  </div>
+
+  <footer>
+    <p data-t="prix">Tarif net, service compris</p>
+    <p data-t="prevenir">Allergie ? Prévenez toujours votre serveur avant de commander.</p>
+    <p id="note-trad" hidden></p>
+    <div id="legende"><h2 class="legende-titre">Les 14 allergènes majeurs</h2><ol class="legende"><li><b>1</b>Gluten</li><li><b>2</b>Crustacés</li><li><b>3</b>Œufs</li><li><b>4</b>Poissons</li><li><b>5</b>Arachides</li><li><b>6</b>Soja</li><li><b>7</b>Lait</li><li><b>8</b>Fruits à coque</li><li><b>9</b>Céleri</li><li><b>10</b>Moutarde</li><li><b>11</b>Sésame</li><li><b>12</b>Sulfites</li><li><b>13</b>Lupin</li><li><b>14</b>Mollusques</li></ol></div>
+    <p class="lieu" style="margin-top:20px">43 rue Saint-Rémi · 33000 Bordeaux · 05 56 81 74 30</p>
+  </footer>
+</div>
+
+<dialog id="dlg-langue" aria-labelledby="titre-langue">
+  <div class="dlg-tete"><h2 id="titre-langue" data-t="choisir">Choisissez votre langue</h2>
+    <button class="fermer" type="button" data-fermer aria-label="Fermer">✕</button></div>
+  <div class="dlg-corps"><div class="langues" id="liste-langues"></div></div>
+</dialog>
+
+<dialog id="dlg-allergies" aria-labelledby="titre-allergies">
+  <div class="dlg-tete"><h2 id="titre-allergies">Je suis allergique à :</h2>
+    <button class="fermer" type="button" data-fermer aria-label="Fermer">✕</button></div>
+  <div class="dlg-corps"><div class="cases" id="cases"></div></div>
+  <div class="dlg-pied">
+    <button class="btn" id="btn-effacer" type="button">Tout effacer</button>
+    <button class="btn principal" id="btn-voir" type="button" data-fermer>Voir la carte</button>
+  </div>
+</dialog>
+
+<script>
+var MENU_DATA = {"restaurant":"Le Chaudron","adresse":"43 rue Saint-Rémi, 33000 Bordeaux","telephone":"05 56 81 74 30","demo":true,"allergenesValides":false,"drapeaux":{"fr":"🇫🇷","en":"🇬🇧","zh":"🇨🇳","hi":"🇮🇳","es":"🇪🇸","ar":"🇸🇦","bn":"🇧🇩","pt":"🇵🇹","ru":"🇷🇺","id":"🇮🇩","ur":"🇵🇰","de":"🇩🇪","ja":"🇯🇵","nl":"🇳🇱","it":"🇮🇹"},"langues":[["fr","Français","ltr"],["en","English","ltr"],["zh","中文","ltr"],["hi","हिन्दी","ltr"],["es","Español","ltr"],["ar","العربية","rtl"],["bn","বাংলা","ltr"],["pt","Português","ltr"],["ru","Русский","ltr"],["id","Bahasa Indonesia","ltr"],["ur","اردو","rtl"],["de","Deutsch","ltr"],["ja","日本語","ltr"],["nl","Nederlands","ltr"],["it","Italiano","ltr"]],"cles":["carte","langue","choisir","trad","prevenir","prix","attente","test","accroche","midi","soir","vins","entrees","plats","desserts","accompagnement","form1","form2","enfant","enfantDetail","verre","carafes","bouteilles","rouge","blanc","rose","demo","boutonService","midiC","soirC","vinsC","grenier","foiegras","escargots","escargotsCass","crevettesMayo","crevettesPoele","tomates","entreeJour","chevre","gesiers","serrano","crudites","tartare","platJour","omelette","magret","burgerM","burgerS","pieceBoeuf","entrecote","poulet","lentilles","bavette","cuisseConfite","fromageBlanc","caneles","fromages","glace2","basque","dessertJour","coulant","liegeois","tatin"],"ui":{"fr":["La carte","Langue","Choisissez votre langue","","Allergie ? Prévenez toujours votre serveur avant de commander.","Tarif net, service compris","Allergènes : en cours de validation par le chef. Demandez à votre serveur.","Version de test : textes et allergènes en cours de validation par le restaurant","Brasserie bordelaise, rue Saint-Rémi","Menu du midi","Menu du soir","Carte des vins","Entrées","Plats","Desserts","Servis avec frites maison ou accompagnement au choix","Entrée + Plat ou Plat + Dessert","Plat seul","Menu enfant","Steak haché, frites et une boule de glace","Au verre","Carafes","Bouteilles","Rouge","Blanc","Rosé","Démonstration — carte reprise du Chaudron. Allergènes non renseignés : à valider par le restaurant.","Service","Midi","Soir","Vins","Assiette de grenier médocain","Foie gras sur toast","Escargots à la persillade","Cassolette d'escargots à la persillade","Crevettes fraîches mayonnaise","Poêlée de crevettes en persillade (ou fraîches)","Salade de tomates d'Antan","Entrée du jour","Salade de chèvre chaud","Salade de gésiers","Assiette de jambon serrano","Salade de crudités","Tartare de bœuf frais haché","Plat du jour","Omelette aux champignons","Magret de canard entier, sauce au poivre","Burger maison haché (ou végétarien)","Burger haché (maison ou végan)","Pièce de bœuf grillée","Entrecôte aux échalotes","Filet de poulet, sauce au poivre","Bol de lentilles et ses petits légumes","Bavette d'aloyau","Cuisse de canard confite","Fromage blanc","Canelés","Assiette de fromages","Deux boules de glace","Gâteau basque","Dessert du jour","Coulant au chocolat","Café ou chocolat liégeois","Tarte Tatin"],"en":["The menu","Language","Choose your language","Automatic translation: if in doubt, the French version prevails.","Allergy? Always tell your server before ordering.","Net price, service included","Allergens: being checked by the chef. Please ask your server.","Test version: texts and allergens are being checked by the restaurant","Bordeaux brasserie, rue Saint-Rémi","Lunch menu","Dinner menu","Wine list","Starters","Mains","Desserts","Served with homemade fries or a side of your choice","Starter + Main or Main + Dessert","Main course only","Children's menu","Beef patty, fries and a scoop of ice cream","By the glass","Carafes","Bottles","Red","White","Rosé","Demo — menu reproduced from Le Chaudron. Allergens not filled in: to be approved by the restaurant.","Service","Lunch","Dinner","Wines","Grenier médocain platter (Médoc pork charcuterie)","Foie gras on toast","Snails in garlic-parsley butter","Snail cassolette in garlic-parsley butter","Fresh prawns with mayonnaise","Pan-fried prawns in garlic-parsley butter (or served cold)","Heirloom tomato salad","Starter of the day","Warm goat's cheese salad","Duck gizzard salad","Serrano ham platter","Raw vegetable salad","Freshly chopped beef tartare","Dish of the day","Mushroom omelette","Whole duck breast, pepper sauce","Homemade beef burger (or vegetarian)","Beef burger (homemade or vegan)","Grilled cut of beef","Rib steak with shallots","Chicken fillet, pepper sauce","Bowl of lentils with garden vegetables","Flank steak","Confit duck leg","Fromage blanc (fresh white cheese)","Canelés (Bordeaux rum-vanilla cakes)","Cheese platter","Two scoops of ice cream","Gâteau basque (Basque custard cake)","Dessert of the day","Molten chocolate cake","Coffee or chocolate liégeois (ice cream sundae)","Tarte Tatin (caramelised apple tart)"],"zh":["菜单","语言","请选择语言","自动翻译：如有疑问，以法文版本为准。","如有过敏，点餐前请务必告知服务员。","净价，含服务费","过敏原：主厨正在核实，请询问服务员。","测试版：文字和过敏原信息正由餐厅核实","波尔多小酒馆，圣雷米街","午市套餐","晚市套餐","酒单","前菜","主菜","甜点","配自制薯条或任选配菜","前菜+主菜 或 主菜+甜点","仅主菜","儿童套餐","牛肉饼、薯条和一球冰淇淋","单杯","醒酒壶","瓶装","红葡萄酒","白葡萄酒","桃红葡萄酒","演示版 — 菜单取自 Le Chaudron。过敏原尚未填写，需由餐厅确认。","用餐时段","午市","晚市","酒单","梅多克猪肉冷切拼盘","鹅肝吐司","香芹蒜香焗蜗牛","香芹蒜香焗蜗牛小盅","鲜虾配蛋黄酱","香芹蒜香煎虾（或冷食鲜虾）","传家宝番茄沙拉","每日前菜","温热山羊奶酪沙拉","油封鸭胗沙拉","塞拉诺火腿拼盘","时蔬沙拉","新鲜手切牛肉鞑靼","每日主菜","蘑菇煎蛋卷","整块煎鸭胸配胡椒酱","手工汉堡（或素食版）","手工汉堡（经典或纯素）","炭烤牛排","青葱肋眼牛排","鸡胸排配胡椒酱","扁豆蔬菜碗","牛腹肉排","油封鸭腿","法式白奶酪","可露丽（波尔多朗姆香草小蛋糕）","奶酪拼盘","两球冰淇淋","巴斯克蛋糕","每日甜点","熔岩巧克力蛋糕","列日咖啡或巧克力冰淇淋杯","翻转苹果挞"],"hi":["मेन्यू","भाषा","अपनी भाषा चुनें","स्वचालित अनुवाद: संदेह होने पर फ़्रेंच संस्करण मान्य है।","एलर्जी है? ऑर्डर करने से पहले हमेशा अपने वेटर को बताएँ।","शुद्ध कीमत, सेवा शुल्क शामिल","एलर्जी कारक: शेफ़ द्वारा जाँच जारी है। कृपया अपने वेटर से पूछें।","परीक्षण संस्करण: पाठ और एलर्जी कारकों की जाँच रेस्टोरेंट कर रहा है","बोर्दो ब्रासरी, सैं-रेमी गली","दोपहर का मेन्यू","रात का मेन्यू","वाइन सूची","स्टार्टर","मुख्य व्यंजन","मिठाई","घर की फ्रेंच फ्राइज़ या अपनी पसंद की साइड डिश के साथ","स्टार्टर + मुख्य या मुख्य + मिठाई","केवल मुख्य व्यंजन","बच्चों का मेन्यू","बीफ़ पैटी, फ्रेंच फ्राइज़ और एक स्कूप आइसक्रीम","ग्लास से","कैराफ़","बोतलें","लाल","सफ़ेद","रोज़े","डेमो — मेन्यू Le Chaudron से लिया गया। एलर्जी कारक अभी दर्ज नहीं, रेस्तराँ द्वारा सत्यापित किए जाने हैं।","सर्विस","दोपहर","रात","वाइन","ग्रेनिये मेदोकें प्लेट (मेदोक की पोर्क शार्क्यूटरी)","टोस्ट पर फ़ुआ ग्रा","लहसुन-पार्स्ले मक्खन में घोंघे","लहसुन-पार्स्ले मक्खन में घोंघे की कैसरोल","ताज़ा झींगे मेयोनीज़ के साथ","लहसुन-पार्स्ले मक्खन में तले झींगे (या ठंडे)","पुरानी किस्म के टमाटर का सलाद","आज का स्टार्टर","गर्म बकरी पनीर का सलाद","बत्तख़ के गिज़ार्ड का सलाद","सेरानो हैम प्लेट","कच्ची सब्ज़ियों का सलाद","ताज़ा कटा बीफ़ टार्टार","आज का मुख्य व्यंजन","मशरूम ऑमलेट","साबुत डक ब्रेस्ट, काली मिर्च सॉस","होममेड बर्गर (या शाकाहारी)","बर्गर (होममेड या वीगन)","ग्रिल्ड बीफ़ कट","शैलट के साथ रिब स्टेक","चिकन फ़िलेट, काली मिर्च सॉस","दाल और सब्ज़ियों का बाउल","फ़्लैंक स्टेक","कॉन्फ़ी डक लेग","फ़्रोमाज ब्लां (ताज़ा सफ़ेद चीज़)","कानेले (बोर्दो की रम-वनीला केक)","चीज़ प्लेट","दो स्कूप आइसक्रीम","गातो बास्क (बास्क कस्टर्ड केक)","आज की मिठाई","मोल्टन चॉकलेट केक","कॉफ़ी या चॉकलेट लिएज्वा (आइसक्रीम सनडे)","तार्त ताताँ (कैरेमलाइज़्ड एप्पल टार्ट)"],"es":["La carta","Idioma","Elija su idioma","Traducción automática: en caso de duda, prevalece la versión francesa.","¿Alergia? Avise siempre a su camarero antes de pedir.","Precio neto, servicio incluido","Alérgenos: en revisión por el chef. Pregunte a su camarero.","Versión de prueba: textos y alérgenos en revisión por el restaurante","Brasserie bordelesa, rue Saint-Rémi","Menú del mediodía","Menú de la noche","Carta de vinos","Entrantes","Platos principales","Postres","Servidos con patatas fritas caseras o guarnición a elegir","Entrante + Plato o Plato + Postre","Solo plato principal","Menú infantil","Filete de ternera picada, patatas fritas y una bola de helado","Por copa","Jarras","Botellas","Tinto","Blanco","Rosado","Demostración — carta tomada de Le Chaudron. Alérgenos sin cumplimentar: pendientes de validación por el restaurante.","Servicio","Mediodía","Noche","Vinos","Tabla de grenier médocain (embutido de cerdo del Médoc)","Foie gras sobre tostada","Caracoles a la persillade (ajo y perejil)","Cazuelita de caracoles a la persillade","Gambas frescas con mayonesa","Gambas salteadas a la persillade (o frescas)","Ensalada de tomates de variedades antiguas","Entrante del día","Ensalada de queso de cabra caliente","Ensalada de mollejas de pato","Tabla de jamón serrano","Ensalada de crudités","Tartar de ternera picada al momento","Plato del día","Tortilla de champiñones","Magret de pato entero con salsa de pimienta","Hamburguesa casera de ternera (o vegetariana)","Hamburguesa de ternera (casera o vegana)","Pieza de ternera a la parrilla","Entrecot con chalotas","Filete de pollo con salsa de pimienta","Bol de lentejas con verduritas","Bavette de solomillo","Confit de muslo de pato","Queso fresco batido","Canelés (pastelitos bordeleses de ron y vainilla)","Tabla de quesos","Dos bolas de helado","Pastel vasco","Postre del día","Coulant de chocolate","Café o chocolate liégeois (copa de helado)","Tarta Tatin de manzana"],"ar":["قائمة الطعام","اللغة","اختر لغتك","ترجمة آلية: في حال الشك، تُعتمد النسخة الفرنسية.","هل لديك حساسية؟ أخبر النادل دائمًا قبل الطلب.","السعر صافٍ، الخدمة مشمولة","مسببات الحساسية: قيد التحقق من قبل الطاهي. يرجى سؤال النادل.","نسخة تجريبية: النصوص ومسببات الحساسية قيد التحقق من قبل المطعم","براسري بوردوية، شارع سان ريمي","قائمة الغداء","قائمة العشاء","قائمة النبيذ","المقبلات","الأطباق الرئيسية","الحلويات","تُقدَّم مع بطاطس مقلية منزلية أو طبق جانبي من اختيارك","مقبلات + طبق رئيسي أو طبق رئيسي + حلوى","الطبق الرئيسي فقط","قائمة الأطفال","قطعة لحم بقري مفروم وبطاطس مقلية وكرة مثلجات","بالكأس","أباريق","زجاجات","أحمر","أبيض","وردي","نسخة تجريبية — القائمة مأخوذة من Le Chaudron. مسببات الحساسية غير مُدرجة: بانتظار اعتماد المطعم.","الخدمة","الغداء","العشاء","النبيذ","طبق غرونييه ميدوكان (مصنوعات لحم الخنزير من الميدوك)","فوا غرا على خبز محمص","حلزونات بزبدة الثوم والبقدونس","طاجن حلزونات بزبدة الثوم والبقدونس","جمبري طازج مع المايونيز","جمبري مقلي بزبدة الثوم والبقدونس (أو بارد)","سلطة طماطم من أصناف قديمة","مقبلات اليوم","سلطة جبن الماعز الدافئ","سلطة قوانص البط","طبق جامون سيرانو","سلطة خضار نيئة","تارتار لحم بقري مفروم طازج","طبق اليوم","أومليت بالفطر","صدر بط كامل مع صلصة الفلفل","برجر بقري منزلي (أو نباتي)","برجر مفروم (منزلي أو نباتي صرف)","قطعة لحم بقري مشوية","ستيك ضلع مع الكراث","فيليه دجاج مع صلصة الفلفل","وعاء عدس مع خضار","شريحة لحم الخاصرة","فخذ بط كونفي","جبن أبيض طازج","كانيليه (كعك بوردو بالرم والفانيليا)","طبق أجبان","كرتان من المثلجات","كعكة الباسك","حلوى اليوم","كيكة الشوكولاتة السائلة","قهوة أو شوكولاتة ليجوا (كأس مثلجات)","تارت تاتان (فطيرة التفاح المكرمل)"],"bn":["মেনু","ভাষা","আপনার ভাষা বেছে নিন","স্বয়ংক্রিয় অনুবাদ: সন্দেহ হলে ফরাসি সংস্করণই প্রযোজ্য।","অ্যালার্জি আছে? অর্ডার দেওয়ার আগে সবসময় আপনার ওয়েটারকে জানান।","নিট মূল্য, সার্ভিস অন্তর্ভুক্ত","অ্যালার্জেন: শেফ যাচাই করছেন। অনুগ্রহ করে ওয়েটারকে জিজ্ঞাসা করুন।","পরীক্ষামূলক সংস্করণ: লেখা ও অ্যালার্জেন রেস্তোরাঁ যাচাই করছে","বোর্দো ব্রাসারি, সাঁ-রেমি স্ট্রিট","দুপুরের মেনু","রাতের মেনু","ওয়াইন তালিকা","স্টার্টার","মেইন কোর্স","ডেজার্ট","ঘরে তৈরি ফ্রাই বা পছন্দের সাইড ডিশসহ","স্টার্টার + মেইন অথবা মেইন + ডেজার্ট","শুধু মেইন কোর্স","শিশুদের মেনু","বিফ প্যাটি, ফ্রাই ও এক স্কুপ আইসক্রিম","গ্লাসে","ক্যারাফ","বোতল","রেড","হোয়াইট","রোজে","ডেমো — মেনু Le Chaudron থেকে নেওয়া। অ্যালার্জেন এখনও পূরণ করা হয়নি, রেস্তোরাঁর অনুমোদন প্রয়োজন।","সার্ভিস","দুপুর","রাত","ওয়াইন","গ্রেনিয়ে মেদোকাঁ প্লেট (মেদোকের শূকরের শার্কুটারি)","টোস্টে ফোয়া গ্রা","রসুন-পার্সলে মাখনে শামুক","রসুন-পার্সলে মাখনে শামুকের কাসোলেট","তাজা চিংড়ি মেয়োনিজসহ","রসুন-পার্সলে মাখনে ভাজা চিংড়ি (বা ঠান্ডা)","হেয়ারলুম টমেটো সালাদ","আজকের স্টার্টার","উষ্ণ ছাগলের পনিরের সালাদ","হাঁসের গিজার্ড সালাদ","সেরানো হ্যাম প্লেট","কাঁচা সবজির সালাদ","তাজা কাটা বিফ টারটার","আজকের মেইন কোর্স","মাশরুম অমলেট","আস্ত ডাক ব্রেস্ট, পেপার সস","ঘরে তৈরি বিফ বার্গার (বা নিরামিষ)","বার্গার (ঘরে তৈরি বা ভেগান)","গ্রিলড বিফ কাট","শ্যালটসহ রিব স্টেক","চিকেন ফিলে, পেপার সস","ডাল ও সবজির বাউল","ফ্ল্যাঙ্ক স্টেক","কনফি ডাক লেগ","ফ্রোমাজ ব্লঁ (তাজা সাদা চিজ)","কানেলে (বোর্দোর রাম-ভ্যানিলা কেক)","চিজ প্লেট","দুই স্কুপ আইসক্রিম","গাতো বাস্ক (বাস্ক কাস্টার্ড কেক)","আজকের ডেজার্ট","মোল্টেন চকলেট কেক","কফি বা চকলেট লিয়েজোয়া (আইসক্রিম সানডে)","তার্ত তাতাঁ (ক্যারামেলাইজড আপেল টার্ট)"],"pt":["A ementa","Idioma","Escolha o seu idioma","Tradução automática: em caso de dúvida, prevalece a versão francesa.","Alergia? Informe sempre o seu empregado antes de pedir.","Preço líquido, serviço incluído","Alergénios: em verificação pelo chef. Pergunte ao seu empregado.","Versão de teste: textos e alergénios em verificação pelo restaurante","Brasserie bordelesa, rue Saint-Rémi","Menu de almoço","Menu de jantar","Carta de vinhos","Entradas","Pratos principais","Sobremesas","Servidos com batatas fritas caseiras ou acompanhamento à escolha","Entrada + Prato ou Prato + Sobremesa","Só prato principal","Menu infantil","Bife de carne picada, batatas fritas e uma bola de gelado","A copo","Jarros","Garrafas","Tinto","Branco","Rosé","Demonstração — carta retirada do Le Chaudron. Alergénios por preencher: a validar pelo restaurante.","Serviço","Almoço","Jantar","Vinhos","Tábua de grenier médocain (enchidos de porco do Médoc)","Foie gras em tosta","Caracóis à persillade (alho e salsa)","Caçarola de caracóis à persillade","Camarões frescos com maionese","Camarões salteados à persillade (ou frescos)","Salada de tomates de variedades antigas","Entrada do dia","Salada de queijo de cabra quente","Salada de moelas de pato","Tábua de presunto serrano","Salada de legumes crus","Tártaro de novilho picado na hora","Prato do dia","Omelete de cogumelos","Magret de pato inteiro com molho de pimenta","Hambúrguer caseiro de novilho (ou vegetariano)","Hambúrguer picado (caseiro ou vegano)","Peça de novilho grelhada","Entrecosto com chalotas","Filete de frango com molho de pimenta","Taça de lentilhas com legumes","Bavette do lombo","Coxa de pato confitada","Queijo fresco batido","Canelés (bolinhos bordeleses de rum e baunilha)","Tábua de queijos","Duas bolas de gelado","Bolo basco","Sobremesa do dia","Bolo de chocolate com centro líquido","Café ou chocolate liégeois (taça de gelado)","Tarte Tatin de maçã caramelizada"],"ru":["Меню","Язык","Выберите язык","Автоматический перевод: в случае сомнений действует французская версия.","Есть аллергия? Всегда сообщайте официанту перед заказом.","Цена нетто, обслуживание включено","Аллергены: проверяются шеф-поваром. Уточните у официанта.","Тестовая версия: тексты и аллергены проверяются рестораном","Бордоская брассери, улица Сен-Реми","Обеденное меню","Ужин","Карта вин","Закуски","Основные блюда","Десерты","Подаётся с домашним картофелем фри или гарниром на выбор","Закуска + основное или основное + десерт","Только основное блюдо","Детское меню","Говяжья котлета, картофель фри и шарик мороженого","По бокалам","Графины","Бутылки","Красное","Белое","Розовое","Демоверсия — меню взято у Le Chaudron. Аллергены не заполнены: ожидают подтверждения рестораном.","Подача","Обед","Ужин","Вина","Гренье медокен (свиная закуска из Медока)","Фуа-гра на тосте","Улитки в чесночно-петрушечном масле","Улитки в горшочке с чесночно-петрушечным маслом","Свежие креветки с майонезом","Креветки, обжаренные в чесночном масле (или холодные)","Салат из старинных сортов томатов","Закуска дня","Салат с тёплым козьим сыром","Салат с утиными желудочками","Тарелка хамона серрано","Салат из свежих овощей","Тартар из свежерубленой говядины","Блюдо дня","Омлет с грибами","Целое утиное филе с перечным соусом","Домашний бургер из говядины (или вегетарианский)","Бургер из рубленой говядины (домашний или веганский)","Говяжий стейк на гриле","Антрекот с луком-шалот","Куриное филе с перечным соусом","Чечевица с овощами","Стейк бавет","Утиная ножка конфи","Фромаж блан (свежий творожный сыр)","Канеле (бордоские пирожные с ромом и ванилью)","Сырная тарелка","Два шарика мороженого","Баскский пирог","Десерт дня","Шоколадный фондан","Кофе или шоколад льежуа (мороженое со сливками)","Тарт Татен (яблочный пирог с карамелью)"],"id":["Menu","Bahasa","Pilih bahasa Anda","Terjemahan otomatis: jika ragu, versi bahasa Prancis yang berlaku.","Punya alergi? Selalu beri tahu pelayan sebelum memesan.","Harga bersih, termasuk layanan","Alergen: sedang diperiksa oleh koki. Silakan tanyakan kepada pelayan.","Versi uji coba: teks dan alergen sedang diperiksa oleh restoran","Brasserie khas Bordeaux, rue Saint-Rémi","Menu makan siang","Menu makan malam","Daftar anggur","Hidangan pembuka","Hidangan utama","Hidangan penutup","Disajikan dengan kentang goreng buatan sendiri atau lauk pilihan","Pembuka + utama atau utama + penutup","Hanya hidangan utama","Menu anak","Patty daging sapi, kentang goreng, dan satu skop es krim","Per gelas","Karaf","Botol","Merah","Putih","Rosé","Demo — menu diambil dari Le Chaudron. Alergen belum diisi: menunggu validasi restoran.","Waktu makan","Siang","Malam","Anggur","Piring grenier médocain (olahan daging babi khas Médoc)","Foie gras di atas roti panggang","Siput dengan mentega bawang putih dan peterseli","Siput panggang dalam mentega bawang putih dan peterseli","Udang segar dengan mayones","Udang tumis bawang putih dan peterseli (atau dingin)","Salad tomat varietas lama","Hidangan pembuka hari ini","Salad keju kambing hangat","Salad ampela bebek","Piring ham serrano","Salad sayuran segar","Tartar daging sapi cincang segar","Hidangan utama hari ini","Telur dadar jamur","Dada bebek utuh dengan saus merica","Burger daging sapi buatan sendiri (atau vegetarian)","Burger cincang (buatan sendiri atau vegan)","Potongan daging sapi panggang","Entrecote dengan bawang merah","Fillet ayam dengan saus merica","Semangkuk lentil dengan sayuran","Steak bavette","Paha bebek konfit","Fromage blanc (keju putih segar)","Canelés (kue rum-vanila khas Bordeaux)","Piring keju","Dua skop es krim","Gâteau basque (kue khas Basque)","Hidangan penutup hari ini","Kue cokelat lumer","Kopi atau cokelat liégeois (es krim sundae)","Tarte Tatin (pai apel karamel)"],"ur":["مینو","زبان","اپنی زبان منتخب کریں","خودکار ترجمہ: شک کی صورت میں فرانسیسی نسخہ معتبر ہے۔","الرجی ہے؟ آرڈر دینے سے پہلے ہمیشہ اپنے ویٹر کو بتائیں۔","خالص قیمت، سروس شامل","الرجی عناصر: شیف تصدیق کر رہے ہیں۔ براہ کرم اپنے ویٹر سے پوچھیں۔","آزمائشی نسخہ: متن اور الرجی عناصر کی تصدیق ریستوران کر رہا ہے","بورڈو براسری، رُو سان ریمی","دوپہر کا مینیو","رات کا مینیو","وائن لسٹ","اسٹارٹرز","مین کورس","میٹھا","گھر کے بنے فرائز یا اپنی پسند کی سائیڈ ڈش کے ساتھ","اسٹارٹر + مین یا مین + میٹھا","صرف مین کورس","بچوں کا مینیو","بیف پیٹی، فرائز اور آئس کریم کا ایک اسکوپ","فی گلاس","کیراف","بوتلیں","ریڈ","وائٹ","روزے","ڈیمو — مینیو Le Chaudron سے لیا گیا۔ الرجی عناصر درج نہیں، ریستوران کی تصدیق درکار ہے۔","سروس","دوپہر","رات","وائن","گرینیے میدوکاں پلیٹ (میدوک کی پورک چارکیوٹری)","ٹوسٹ پر فوا گرا","لہسن اور پارسلے مکھن میں گھونگھے","لہسن پارسلے مکھن میں گھونگھوں کی کیسرول","تازہ جھینگے مایونیز کے ساتھ","لہسن پارسلے مکھن میں تلے جھینگے (یا ٹھنڈے)","پرانی اقسام کے ٹماٹر کا سلاد","آج کا اسٹارٹر","گرم بکری کے پنیر کا سلاد","بطخ کے گیزارڈ کا سلاد","سیرانو ہیم پلیٹ","کچی سبزیوں کا سلاد","تازہ کٹا بیف ٹارٹار","آج کا مین کورس","مشروم آملیٹ","ثابت ڈک بریسٹ، کالی مرچ ساس","گھر کا بنا بیف برگر (یا ویجیٹیرین)","برگر (گھر کا بنا یا ویگن)","گرلڈ بیف کٹ","شیلٹس کے ساتھ رِب اسٹیک","چکن فلے، کالی مرچ ساس","دال اور سبزیوں کا باؤل","فلینک اسٹیک","کنفی ڈک لیگ","فرومیج بلاں (تازہ سفید چیز)","کانیلے (بورڈو کے رم ونیلا کیک)","چیز پلیٹ","آئس کریم کے دو اسکوپ","گاتو باسک (باسک کسٹرڈ کیک)","آج کا میٹھا","مولٹن چاکلیٹ کیک","کافی یا چاکلیٹ لیژوا (آئس کریم سنڈے)","تارت تاتاں (کیریملائزڈ ایپل ٹارٹ)"],"de":["Speisekarte","Sprache","Wählen Sie Ihre Sprache","Automatische Übersetzung: Im Zweifel gilt die französische Fassung.","Allergie? Informieren Sie vor der Bestellung immer Ihre Bedienung.","Nettopreis, Bedienung inklusive","Allergene: werden vom Küchenchef geprüft. Bitte fragen Sie Ihre Bedienung.","Testversion: Texte und Allergene werden vom Restaurant geprüft","Bordelaiser Brasserie, Rue Saint-Rémi","Mittagsmenü","Abendmenü","Weinkarte","Vorspeisen","Hauptgerichte","Desserts","Serviert mit hausgemachten Pommes oder einer Beilage nach Wahl","Vorspeise + Hauptgang oder Hauptgang + Dessert","Nur Hauptgang","Kindermenü","Rinderhacksteak, Pommes und eine Kugel Eis","Offen im Glas","Karaffen","Flaschen","Rot","Weiß","Rosé","Demo — Karte vom Chaudron übernommen. Allergene noch nicht erfasst: vom Restaurant zu bestätigen.","Service","Mittag","Abend","Weine","Grenier médocain (Schweinecharcuterie aus dem Médoc)","Foie gras auf Toast","Schnecken in Knoblauch-Petersilien-Butter","Schneckentöpfchen in Knoblauch-Petersilien-Butter","Frische Garnelen mit Mayonnaise","Gebratene Garnelen in Knoblauch-Petersilien-Butter (oder kalt)","Salat von alten Tomatensorten","Vorspeise des Tages","Salat mit warmem Ziegenkäse","Salat mit Entenmägen","Serrano-Schinken-Teller","Rohkostsalat","Tatar vom frisch gehackten Rind","Tagesgericht","Pilz-Omelett","Ganze Entenbrust mit Pfeffersauce","Hausgemachter Rinderburger (oder vegetarisch)","Burger vom Hackfleisch (hausgemacht oder vegan)","Gegrilltes Rindfleischstück","Entrecôte mit Schalotten","Hähnchenfilet mit Pfeffersauce","Linsentopf mit Gemüse","Bavette vom Roastbeef","Confierte Entenkeule","Fromage blanc (Frischkäse)","Canelés (Bordelaiser Rum-Vanille-Küchlein)","Käseteller","Zwei Kugeln Eis","Gâteau basque (baskischer Cremekuchen)","Dessert des Tages","Schokoladenküchlein mit flüssigem Kern","Café oder Schokolade liégeois (Eisbecher)","Tarte Tatin (karamellisierter Apfelkuchen)"],"ja":["メニュー","言語","言語を選択してください","自動翻訳：不明な点はフランス語版が優先されます。","アレルギーのある方は、ご注文前に必ずスタッフにお伝えください。","表示価格はサービス料込みです","アレルゲン：シェフが確認中です。スタッフにお尋ねください。","テスト版：文章とアレルゲンはレストランが確認中です","ボルドーのブラッスリー、サン＝レミ通り","ランチメニュー","ディナーメニュー","ワインリスト","前菜","メイン","デザート","自家製フライドポテトまたはお好みの付け合わせ付き","前菜＋メイン または メイン＋デザート","メインのみ","お子様メニュー","ハンバーグ、フライドポテト、アイスクリーム1スクープ","グラス","カラフェ","ボトル","赤","白","ロゼ","デモ版 — メニューは Le Chaudron より。アレルゲンは未記入、レストランの確認待ちです。","時間帯","ランチ","ディナー","ワイン","グルニエ・メドカン（メドック産豚肉のシャルキュトリー）","フォアグラのトースト添え","エスカルゴ（ガーリックパセリバター）","エスカルゴのカソレット（ガーリックパセリバター）","海老のマヨネーズ添え","海老のガーリックパセリ炒め（または冷製）","エアルームトマトのサラダ","本日の前菜","温製ゴートチーズのサラダ","鴨の砂肝のサラダ","生ハム（セラーノ）の盛り合わせ","生野菜のサラダ","牛肉のタルタル（粗挽き）","本日のメイン","きのこのオムレツ","鴨胸肉のロースト ペッパーソース","自家製ビーフバーガー（ベジタリアンも可）","ハンバーガー（自家製またはヴィーガン）","牛肉のグリル","リブステーキ エシャロット添え","チキンフィレ ペッパーソース","レンズ豆と野菜のボウル","バヴェット（ハラミ風ステーキ）","鴨もも肉のコンフィ","フロマージュ・ブラン","カヌレ（ボルドーのラム＆バニラ菓子）","チーズの盛り合わせ","アイスクリーム 2 スクープ","ガトー・バスク","本日のデザート","フォンダン・ショコラ","カフェ・リエジョワ／ショコラ・リエジョワ（アイスクリーム）","タルト・タタン（キャラメルりんごのタルト）"],"nl":["De kaart","Taal","Kies uw taal","Automatische vertaling: bij twijfel geldt de Franse versie.","Allergie? Meld het altijd aan uw ober voordat u bestelt.","Nettoprijs, bediening inbegrepen","Allergenen: worden door de chef gecontroleerd. Vraag het uw ober.","Testversie: teksten en allergenen worden door het restaurant gecontroleerd","Bordelese brasserie, rue Saint-Rémi","Lunchmenu","Avondmenu","Wijnkaart","Voorgerechten","Hoofdgerechten","Desserts","Geserveerd met huisgemaakte friet of een bijgerecht naar keuze","Voorgerecht + hoofdgerecht of hoofdgerecht + dessert","Alleen hoofdgerecht","Kindermenu","Rundergehakt­burger, friet en een bolletje ijs","Per glas","Karaffen","Flessen","Rood","Wit","Rosé","Demo — kaart overgenomen van Le Chaudron. Allergenen nog niet ingevuld: te bevestigen door het restaurant.","Service","Lunch","Diner","Wijnen","Plank grenier médocain (Médoc-varkensvleeswaren)","Foie gras op toast","Slakken in knoflook-peterseliboter","Slakkenschoteltje in knoflook-peterseliboter","Verse garnalen met mayonaise","Gebakken garnalen in knoflook-peterseliboter (of koud)","Salade van oude tomatenrassen","Voorgerecht van de dag","Salade met warme geitenkaas","Salade met eendenmagen","Plank serranoham","Rauwkostsalade","Tartaar van vers gehakt rundvlees","Dagschotel","Omelet met champignons","Hele eendenborst met pepersaus","Huisgemaakte rundvleesburger (of vegetarisch)","Gehaktburger (huisgemaakt of veganistisch)","Gegrild stuk rundvlees","Entrecote met sjalotten","Kipfilet met pepersaus","Kom linzen met groenten","Bavette (vinkelap)","Gekonfijte eendenbout","Fromage blanc (verse witte kaas)","Canelés (Bordelese rum-vanillecakejes)","Kaasplank","Twee bolletjes ijs","Gâteau basque (Baskische roomtaart)","Dessert van de dag","Chocoladetaartje met vloeibare kern","Koffie- of chocolade-liégeois (ijscoupe)","Tarte Tatin (gekarameliseerde appeltaart)"],"it":["Il menù","Lingua","Scegli la tua lingua","Traduzione automatica: in caso di dubbio, fa fede la versione francese.","Allergie? Avvisa sempre il cameriere prima di ordinare.","Prezzo netto, servizio incluso","Allergeni: in fase di verifica da parte dello chef. Chiedi al cameriere.","Versione di prova: testi e allergeni in fase di verifica da parte del ristorante","Brasserie bordolese, rue Saint-Rémi","Menù di pranzo","Menù della sera","Carta dei vini","Antipasti","Secondi","Dolci","Serviti con patatine fritte fatte in casa o contorno a scelta","Antipasto + secondo o secondo + dolce","Solo secondo","Menù bambini","Hamburger di manzo, patatine e una pallina di gelato","Al bicchiere","Caraffe","Bottiglie","Rosso","Bianco","Rosato","Demo — carta ripresa da Le Chaudron. Allergeni non compilati: da validare dal ristorante.","Servizio","Pranzo","Cena","Vini","Tagliere di grenier médocain (salume di maiale del Médoc)","Foie gras su crostone","Lumache alla persillade (aglio e prezzemolo)","Cassolette di lumache alla persillade","Gamberi freschi con maionese","Gamberi saltati alla persillade (o freddi)","Insalata di pomodori antichi","Antipasto del giorno","Insalata con caprino caldo","Insalata di ventrigli d'anatra","Tagliere di prosciutto serrano","Insalata di verdure crude","Tartare di manzo tritato al momento","Piatto del giorno","Omelette ai funghi","Petto d'anatra intero con salsa al pepe","Hamburger di manzo fatto in casa (o vegetariano)","Hamburger tritato (fatto in casa o vegano)","Taglio di manzo alla griglia","Entrecôte allo scalogno","Filetto di pollo con salsa al pepe","Zuppa di lenticchie con verdure","Bavette di controfiletto","Coscia d'anatra confit","Fromage blanc (formaggio fresco)","Canelés (dolcetti bordolesi al rum e vaniglia)","Tagliere di formaggi","Due palline di gelato","Gâteau basque (torta basca alla crema)","Dolce del giorno","Tortino al cioccolato dal cuore morbido","Caffè o cioccolato liégeois (coppa di gelato)","Tarte Tatin (torta di mele caramellate)"]},"allergenes":{"fr":["Gluten","Crustacés","Œufs","Poissons","Arachides","Soja","Lait","Fruits à coque","Céleri","Moutarde","Sésame","Sulfites","Lupin","Mollusques"],"en":["Gluten","Crustaceans","Eggs","Fish","Peanuts","Soy","Milk","Tree nuts","Celery","Mustard","Sesame","Sulphites","Lupin","Molluscs"],"zh":["麸质","甲壳类","蛋类","鱼类","花生","大豆","乳制品","坚果","芹菜","芥末","芝麻","亚硫酸盐","羽扇豆","软体动物"],"hi":["ग्लूटेन","क्रस्टेशियन (झींगा, केकड़ा)","अंडे","मछली","मूंगफली","सोया","दूध","मेवे","सेलरी","सरसों","तिल","सल्फाइट","ल्यूपिन","मोलस्क (सीप, घोंघा)"],"es":["Gluten","Crustáceos","Huevos","Pescado","Cacahuetes","Soja","Leche","Frutos de cáscara","Apio","Mostaza","Sésamo","Sulfitos","Altramuces","Moluscos"],"ar":["الغلوتين","القشريات","البيض","السمك","الفول السوداني","الصويا","الحليب","المكسرات","الكرفس","الخردل","السمسم","الكبريتيت","الترمس","الرخويات"],"bn":["গ্লুটেন","খোলসযুক্ত প্রাণী (চিংড়ি, কাঁকড়া)","ডিম","মাছ","চিনাবাদাম","সয়া","দুধ","বাদাম","সেলারি","সরিষা","তিল","সালফাইট","লুপিন","শামুক ও ঝিনুক"],"pt":["Glúten","Crustáceos","Ovos","Peixe","Amendoins","Soja","Leite","Frutos de casca rija","Aipo","Mostarda","Sésamo","Sulfitos","Tremoço","Moluscos"],"ru":["Глютен","Ракообразные","Яйца","Рыба","Арахис","Соя","Молоко","Орехи","Сельдерей","Горчица","Кунжут","Сульфиты","Люпин","Моллюски"],"id":["Gluten","Krustasea","Telur","Ikan","Kacang tanah","Kedelai","Susu","Kacang pohon","Seledri","Mustar","Wijen","Sulfit","Lupin","Moluska"],"ur":["گلوٹین","جھینگا اور کیکڑا","انڈے","مچھلی","مونگ پھلی","سویا","دودھ","گری دار میوے","سیلری","رائی (مسٹرڈ)","تل","سلفائٹس","لیوپن","سیپیاں اور گھونگھے"],"de":["Gluten","Krebstiere","Eier","Fisch","Erdnüsse","Soja","Milch","Schalenfrüchte","Sellerie","Senf","Sesam","Sulfite","Lupinen","Weichtiere"],"ja":["グルテン","甲殻類","卵","魚","落花生","大豆","乳","ナッツ類","セロリ","マスタード","ごま","亜硫酸塩","ルピナス","軟体動物"],"nl":["Gluten","Schaaldieren","Eieren","Vis","Pinda's","Soja","Melk","Noten","Selderij","Mosterd","Sesamzaad","Sulfieten","Lupine","Weekdieren"],"it":["Glutine","Crostacei","Uova","Pesce","Arachidi","Soia","Latte","Frutta a guscio","Sedano","Senape","Sesamo","Solfiti","Lupini","Molluschi"]},"plus":{"fr":{"allergies":"Liste des allergènes","filtreTitre":"Je suis allergique à :","effacer":"Tout effacer","voir":"Voir la carte","contient":"Contient","alerte":"Contient un de vos allergènes","compatibles":"Plats sans vos allergènes : {n}","legende":"Les 14 allergènes majeurs","exemple":"Allergènes communiqués et validés par le restaurant. En cas d'allergie, prévenez toujours votre serveur avant de commander.","boutonEnfant":"Menu enfant","retirable":"* Peut être retiré du plat : demandez à votre serveur.","aucun":"Aucun des 14 allergènes majeurs","tagExemple":"EXEMPLE"},"en":{"allergies":"Allergen list","filtreTitre":"I am allergic to:","effacer":"Clear all","voir":"Show the menu","contient":"Contains","alerte":"Contains one of your allergens","compatibles":"Dishes without your allergens: {n}","legende":"The 14 major allergens","exemple":"Allergens declared and approved by the restaurant. If you have an allergy, always tell your server before ordering.","boutonEnfant":"Kids' menu","retirable":"* Can be left out of the dish: just ask your server.","aucun":"None of the 14 major allergens","tagExemple":"EXAMPLE"},"zh":{"allergies":"过敏原列表","filtreTitre":"我对以下过敏：","effacer":"全部清除","voir":"查看菜单","contient":"含有","alerte":"含有您的过敏原","compatibles":"不含您过敏原的菜品：{n}","legende":"14种主要过敏原","exemple":"过敏原信息由餐厅提供并确认。如有过敏，请在点餐前务必告知服务员。","boutonEnfant":"儿童套餐","retirable":"* 可从菜品中去除，请告知服务员。","aucun":"不含 14 种主要过敏原","tagExemple":"示例"},"hi":{"allergies":"एलर्जी कारकों की सूची","filtreTitre":"मुझे इनसे एलर्जी है:","effacer":"सब हटाएँ","voir":"मेन्यू देखें","contient":"इसमें है","alerte":"इसमें आपका एलर्जी कारक है","compatibles":"आपके एलर्जी कारकों के बिना व्यंजन: {n}","legende":"14 मुख्य एलर्जी कारक","exemple":"एलर्जी कारक रेस्तराँ द्वारा घोषित और सत्यापित। एलर्जी होने पर ऑर्डर से पहले वेटर को अवश्य बताएँ।","boutonEnfant":"बच्चों का मेन्यू","retirable":"* इसे व्यंजन से हटाया जा सकता है: अपने वेटर से कहें।","aucun":"14 प्रमुख एलर्जी कारकों में से कोई नहीं","tagExemple":"उदाहरण"},"es":{"allergies":"Lista de alérgenos","filtreTitre":"Soy alérgico/a a:","effacer":"Borrar todo","voir":"Ver la carta","contient":"Contiene","alerte":"Contiene uno de sus alérgenos","compatibles":"Platos sin sus alérgenos: {n}","legende":"Los 14 alérgenos principales","exemple":"Alérgenos declarados y validados por el restaurante. Si tiene alergia, avise siempre a su camarero antes de pedir.","boutonEnfant":"Menú infantil","retirable":"* Se puede retirar del plato: pregunte a su camarero.","aucun":"Ninguno de los 14 alérgenos principales","tagExemple":"EJEMPLO"},"ar":{"allergies":"قائمة مسببات الحساسية","filtreTitre":"لدي حساسية من:","effacer":"مسح الكل","voir":"عرض القائمة","contient":"يحتوي على","alerte":"يحتوي على أحد مسببات الحساسية لديك","compatibles":"أطباق خالية من مسببات الحساسية لديك: {n}","legende":"مسببات الحساسية الرئيسية الأربعة عشر","exemple":"مسببات الحساسية معلنة ومعتمدة من المطعم. إن كانت لديك حساسية، أخبر النادل دائمًا قبل الطلب.","boutonEnfant":"قائمة الأطفال","retirable":"* يمكن إزالته من الطبق: اطلب ذلك من النادل.","aucun":"لا يحتوي على أي من مسببات الحساسية الأربعة عشر","tagExemple":"مثال"},"bn":{"allergies":"অ্যালার্জেনের তালিকা","filtreTitre":"আমার এগুলোতে অ্যালার্জি আছে:","effacer":"সব মুছুন","voir":"মেনু দেখুন","contient":"রয়েছে","alerte":"আপনার একটি অ্যালার্জেন রয়েছে","compatibles":"আপনার অ্যালার্জেন ছাড়া খাবার: {n}","legende":"১৪টি প্রধান অ্যালার্জেন","exemple":"অ্যালার্জেন তথ্য রেস্তোরাঁ কর্তৃক ঘোষিত ও যাচাইকৃত। অ্যালার্জি থাকলে অর্ডারের আগে অবশ্যই ওয়েটারকে জানান।","boutonEnfant":"শিশুদের মেনু","retirable":"* খাবার থেকে বাদ দেওয়া যায়: ওয়েটারকে বলুন।","aucun":"১৪টি প্রধান অ্যালার্জেনের কোনোটিই নেই","tagExemple":"উদাহরণ"},"pt":{"allergies":"Lista de alergénios","filtreTitre":"Sou alérgico/a a:","effacer":"Limpar tudo","voir":"Ver a ementa","contient":"Contém","alerte":"Contém um dos seus alergénios","compatibles":"Pratos sem os seus alergénios: {n}","legende":"Os 14 alergénios principais","exemple":"Alergénios declarados e validados pelo restaurante. Em caso de alergia, informe sempre o seu empregado antes de pedir.","boutonEnfant":"Menu infantil","retirable":"* Pode ser retirado do prato: pergunte ao seu empregado.","aucun":"Nenhum dos 14 alergénios principais","tagExemple":"EXEMPLO"},"ru":{"allergies":"Список аллергенов","filtreTitre":"У меня аллергия на:","effacer":"Очистить всё","voir":"Смотреть меню","contient":"Содержит","alerte":"Содержит ваш аллерген","compatibles":"Блюда без ваших аллергенов: {n}","legende":"14 основных аллергенов","exemple":"Аллергены заявлены и подтверждены рестораном. При аллергии обязательно сообщите официанту до заказа.","boutonEnfant":"Детское меню","retirable":"* Можно исключить из блюда: спросите официанта.","aucun":"Не содержит ни одного из 14 основных аллергенов","tagExemple":"ПРИМЕР"},"id":{"allergies":"Daftar alergen","filtreTitre":"Saya alergi terhadap:","effacer":"Hapus semua","voir":"Lihat menu","contient":"Mengandung","alerte":"Mengandung salah satu alergen Anda","compatibles":"Hidangan tanpa alergen Anda: {n}","legende":"14 alergen utama","exemple":"Alergen dinyatakan dan divalidasi oleh restoran. Jika Anda alergi, selalu beri tahu pelayan sebelum memesan.","boutonEnfant":"Menu anak","retirable":"* Bisa dihilangkan dari hidangan: tanyakan kepada pelayan.","aucun":"Tidak mengandung satu pun dari 14 alergen utama","tagExemple":"CONTOH"},"ur":{"allergies":"الرجی عناصر کی فہرست","filtreTitre":"مجھے ان سے الرجی ہے:","effacer":"سب صاف کریں","voir":"مینو دیکھیں","contient":"شامل ہے","alerte":"اس میں آپ کا الرجی عنصر شامل ہے","compatibles":"آپ کے الرجی عناصر کے بغیر کھانے: {n}","legende":"14 بڑے الرجی عناصر","exemple":"الرجی عناصر ریستوران کی طرف سے بتائے اور تصدیق شدہ ہیں۔ الرجی ہو تو آرڈر سے پہلے ویٹر کو ضرور بتائیں۔","boutonEnfant":"بچوں کا مینو","retirable":"* اسے کھانے سے نکالا جا سکتا ہے: ویٹر سے کہیں۔","aucun":"14 بڑے الرجی عناصر میں سے کوئی نہیں","tagExemple":"مثال"},"de":{"allergies":"Allergenliste","filtreTitre":"Ich bin allergisch gegen:","effacer":"Alles löschen","voir":"Zur Speisekarte","contient":"Enthält","alerte":"Enthält eines Ihrer Allergene","compatibles":"Gerichte ohne Ihre Allergene: {n}","legende":"Die 14 Hauptallergene","exemple":"Allergene vom Restaurant angegeben und bestätigt. Bei Allergien informieren Sie bitte immer vor der Bestellung die Bedienung.","boutonEnfant":"Kindermenü","retirable":"* Kann weggelassen werden: fragen Sie Ihre Bedienung.","aucun":"Keines der 14 Hauptallergene","tagExemple":"BEISPIEL"},"ja":{"allergies":"アレルゲン一覧","filtreTitre":"アレルギーがあるもの：","effacer":"すべてクリア","voir":"メニューを見る","contient":"含む","alerte":"あなたのアレルゲンを含みます","compatibles":"アレルゲンを含まない料理：{n}品","legende":"主要14品目のアレルゲン","exemple":"アレルゲンはレストランが申告・確認したものです。アレルギーのある方はご注文前に必ずスタッフにお伝えください。","boutonEnfant":"お子様メニュー","retirable":"* お料理から外せます。スタッフにお申し付けください。","aucun":"14大アレルゲンは含みません","tagExemple":"サンプル"},"nl":{"allergies":"Allergenenlijst","filtreTitre":"Ik ben allergisch voor:","effacer":"Alles wissen","voir":"Bekijk de kaart","contient":"Bevat","alerte":"Bevat een van uw allergenen","compatibles":"Gerechten zonder uw allergenen: {n}","legende":"De 14 belangrijkste allergenen","exemple":"Allergenen opgegeven en bevestigd door het restaurant. Meld een allergie altijd aan uw ober vóór het bestellen.","boutonEnfant":"Kindermenu","retirable":"* Kan uit het gerecht worden weggelaten: vraag het uw ober.","aucun":"Geen van de 14 belangrijkste allergenen","tagExemple":"VOORBEELD"},"it":{"allergies":"Elenco allergeni","filtreTitre":"Sono allergico/a a:","effacer":"Cancella tutto","voir":"Vedi il menù","contient":"Contiene","alerte":"Contiene uno dei tuoi allergeni","compatibles":"Piatti senza i tuoi allergeni: {n}","legende":"I 14 allergeni principali","exemple":"Allergeni dichiarati e validati dal ristorante. In caso di allergia, avvisa sempre il cameriere prima di ordinare.","boutonEnfant":"Menù bambini","retirable":"* Può essere tolto dal piatto: chiedi al cameriere.","aucun":"Nessuno dei 14 allergeni principali","tagExemple":"ESEMPIO"}},"services":[{"id":"midi","titre":"midi","onglet":"midiC","prix":17.5,"formules":[["form1",14.5],["form2",11]],"note":"accompagnement","sections":[{"id":"midi-entrees","titre":"entrees","plats":[["grenier"],["foiegras",null,2],["escargots",null,2],["crevettesMayo"],["tomates"],["entreeJour"]]},{"id":"midi-plats","titre":"plats","note":"accompagnement","plats":[["tartare"],["platJour"],["omelette"],["magret",null,9.5],["burgerM"],["pieceBoeuf"],["entrecote",null,8]]},{"id":"midi-desserts","titre":"desserts","plats":[["fromageBlanc"],["caneles"],["fromages"],["glace2"],["basque"],["dessertJour"]]}]},{"id":"soir","titre":"soir","onglet":"soirC","prix":22,"formules":[["form1",17.75],["form2",13.5]],"note":"accompagnement","sections":[{"id":"soir-entrees","titre":"entrees","plats":[["chevre"],["gesiers"],["foiegras",null,2],["serrano"],["escargotsCass"],["crudites"],["grenier"]]},{"id":"soir-plats","titre":"plats","note":"accompagnement","plats":[["poulet"],["entrecote",null,6],["lentilles"],["crevettesPoele"],["magret",null,7.5],["tartare"],["burgerS"],["bavette"],["cuisseConfite"],["omelette"]]},{"id":"soir-desserts","titre":"desserts","plats":[["basque"],["fromages"],["fromageBlanc"],["caneles"],["coulant"],["liegeois"],["tatin"],["glace2"]]}]},{"id":"vins","titre":"vins","onglet":"vinsC","type":"vins","verre":[["rouge",[["Graves",3],["Haut-Médoc",5]]],["rose",[["Sauvignon",3]]],["blanc",[["Sauvignon",3],["Sauternes",5]]]],"carafes":[["1/4 L",6],["1/2 L",11],["1 L",18]],"bouteilles":[["rouge",[["Bordeaux Réserve",16,11],["Graves",19,null],["Haut-Médoc",19,null],["Lussac Saint-Émilion",21,14],["Pessac-Léognan",27,null],["Saint-Émilion Grand Cru",28,null]]],["blanc",[["Sauvignon",15,null],["Entre-deux-Mers",17,13],["Sauternes",28,null]]],["rose",[["Sauvignon",15,null],["Côtes de Provence",19,15]]]]}],"enfant":{"id":"enfant","titre":"enfant","detail":"enfantDetail","prix":8},"allergenesParPlat":{},"retirables":{},"nonValides":["basque","bavette","burgerM","burgerS","caneles","chevre","coulant","crevettesMayo","crevettesPoele","crudites","cuisseConfite","dessertJour","entrecote","entreeJour","escargots","escargotsCass","foiegras","fromageBlanc","fromages","gesiers","glace2","grenier","lentilles","liegeois","magret","omelette","pieceBoeuf","platJour","poulet","serrano","tartare","tatin","tomates"],"apercu":{"foiegras":[1],"caneles":[1,3,7],"escargots":[7],"crevettesMayo":[2,3]},"apercuRetirables":{"foiegras":[1],"crevettesMayo":[3]}};
+var MENU_CORE = (function () {
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function t(D, lg, cle) {
+    var i = D.cles.indexOf(cle);
+    if (i < 0) throw new Error("clé inconnue " + cle);
+    return (D.ui[lg] && D.ui[lg][i]) || D.ui.fr[i] || "";
+  }
+  function tp(D, lg, cle) {
+    return (D.plus && D.plus[lg] && D.plus[lg][cle]) || (D.plus && D.plus.fr && D.plus.fr[cle]) || "";
+  }
+  function prix(p, lg) {
+    var entier = Math.round(p) === p;
+    try {
+      return new Intl.NumberFormat(lg === "fr" ? "fr-FR" : lg, { style: "currency", currency: "EUR", minimumFractionDigits: entier ? 0 : 2, maximumFractionDigits: 2 }).format(p);
+    } catch (e) { return p + " €"; }
+  }
+  function supp(p, lg) { return "+" + prix(p, lg); }
+
+  var FILET = '<svg class="filet" viewBox="0 0 240 14" aria-hidden="true"><path d="M8 7h88M144 7h88" stroke="currentColor" stroke-width="1.1"/><path d="M120 1l5.5 6-5.5 6-5.5-6z" fill="currentColor"/><circle cx="104" cy="7" r="1.8" fill="currentColor"/><circle cx="136" cy="7" r="1.8" fill="currentColor"/></svg>';
+
+  // ---------- allergènes ----------
+  function pastilles(D, lg, cle, selection) {
+    var apercu = false, liste;
+    if (!D.allergenesValides) {
+      // Démonstration : on n'invente rien. Seuls quelques plats portent un
+      // aperçu, explicitement étiqueté EXEMPLE ; les autres n'affichent rien,
+      // le bandeau en tête de carte dit que la fiche reste à remplir.
+      liste = (D.apercu || {})[cle];
+      if (!liste) return { html: "", exclu: false };
+      apercu = true;
+    } else {
+      if ((D.nonValides || []).indexOf(cle) >= 0) {
+        return { html: '<p class="attente">' + esc(t(D, lg, "attente")) + "</p>", exclu: false };
+      }
+      liste = (D.allergenesParPlat || {})[cle] || [];
+    }
+    var noms = D.allergenes[lg] || D.allergenes.fr;
+    var touche = liste.filter(function (a) { return selection.indexOf(a) >= 0; });
+    var h = "";
+    if (touche.length) {
+      h += '<p class="alerte"><span aria-hidden="true">&#9888;</span> ' + esc(tp(D, lg, "alerte")) + " : " +
+        touche.map(function (a) { return esc(noms[a - 1]); }).join(", ") + "</p>";
+    }
+    if (!liste.length) return { html: h + (apercu ? "" : '<p class="aucun">' + esc(tp(D, lg, "aucun")) + "</p>"), exclu: touche.length > 0 };
+    var ret = (apercu ? (D.apercuRetirables || {}) : (D.retirables || {}))[cle] || [];
+    h += '<div class="allergenes">' + (apercu ? '<span class="exemple-tag">' + esc(tp(D, lg, "tagExemple")) + "</span>" : "") +
+      '<span class="etiquette">' + esc(tp(D, lg, "contient")) + "</span>" +
+      liste.map(function (a) {
+        var r = ret.indexOf(a) >= 0;
+        return '<span class="allergene' + (selection.indexOf(a) >= 0 ? " touche" : "") + (r ? " retirable" : "") +
+          '"><b>' + a + "</b>" + esc(noms[a - 1]) + (r ? '<i class="etoile" aria-hidden="true">*</i>' : "") + "</span>";
+      }).join("") + "</div>";
+    if (ret.length) h += '<p class="note-retirable">' + esc(tp(D, lg, "retirable")) + "</p>";
+    return { html: h, exclu: touche.length > 0 };
+  }
+
+  function plat(D, lg, p, selection) {
+    var cle = p[0], px = p[1], sup = p[2];
+    var ex = pastilles(D, lg, cle, selection || []);
+    var h = '<article class="plat' + (ex.exclu ? " exclu" : "") + '" data-plat="' + esc(cle) + '"><div class="plat-tete"><h3>' + esc(t(D, lg, cle)) + "</h3>";
+    if (px != null) h += '<span class="prix">' + esc(prix(px, lg)) + "</span>";
+    else if (sup) h += '<span class="supplement">' + esc(supp(sup, lg)) + "</span>";
+    h += "</div>" + ex.html + "</article>";
+    return h;
+  }
+
+  // ---------- carte des vins ----------
+  function colonneVins(D, lg, titre, groupes, avecFormats) {
+    var h = '<div class="vins-bloc"><h3>' + esc(t(D, lg, titre)) + "</h3>";
+    h += groupes.map(function (g) {
+      var nom = g[0], items = g[1];
+      return '<div class="vins-groupe"><h4>' + esc(t(D, lg, nom)) + "</h4><ul>" +
+        items.map(function (v) {
+          var l = '<li><span class="vin-nom">' + esc(v[0]) + '</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">';
+          if (avecFormats) {
+            l += esc(prix(v[1], lg)) + ' <small>75 cl</small>';
+            if (v[2] != null) l += ' · ' + esc(prix(v[2], lg)) + ' <small>35 cl</small>';
+          } else l += esc(prix(v[1], lg));
+          return l + "</span></li>";
+        }).join("") + "</ul></div>";
+    }).join("") + "</div>";
+    return h;
+  }
+  function vins(D, lg, s) {
+    var h = '<section class="service" id="sec-' + s.id + '" data-service="' + s.id + '">';
+    h += '<h2>' + esc(t(D, lg, s.titre)) + "</h2>" + FILET;
+    h += '<div class="vins-grille">';
+    h += colonneVins(D, lg, "verre", s.verre, false);
+    h += '<div class="vins-bloc"><h3>' + esc(t(D, lg, "carafes")) + "</h3><ul>" +
+      s.carafes.map(function (c) {
+        return '<li><span class="vin-nom">' + esc(c[0]) + '</span><span class="pointilles" aria-hidden="true"></span><span class="vin-prix">' + esc(prix(c[1], lg)) + "</span></li>";
+      }).join("") + "</ul></div>";
+    h += "</div>";
+    h += colonneVins(D, lg, "bouteilles", s.bouteilles, true);
+    return h + "</section>";
+  }
+
+  // ---------- un service (midi / soir) ----------
+  function service(D, lg, s, selection) {
+    if (s.type === "vins") return vins(D, lg, s);
+    var h = '<section class="service" id="sec-' + s.id + '" data-service="' + s.id + '">';
+    h += '<div class="formule"><h2>' + esc(t(D, lg, s.titre)) + '<span class="formule-prix">' + esc(prix(s.prix, lg)) + "</span></h2>" + FILET + "<ul>" +
+      s.formules.map(function (f) {
+        return '<li><span>' + esc(t(D, lg, f[0])) + '</span><span class="pointilles" aria-hidden="true"></span><span class="prix">' + esc(prix(f[1], lg)) + "</span></li>";
+      }).join("") + "</ul></div>";
+    s.sections.forEach(function (sec) {
+      h += '<section class="categorie" id="sec-' + sec.id + '"><h2>' + esc(t(D, lg, sec.titre)) + "</h2>" + FILET;
+      if (sec.note) h += '<p class="note">' + esc(t(D, lg, sec.note)) + "</p>";
+      h += '<div class="plats">' + sec.plats.map(function (p) { return plat(D, lg, p, selection); }).join("") + "</div></section>";
+    });
+    if (D.enfant) {
+      var e = D.enfant, ex = pastilles(D, lg, "enfant", selection || []);
+      h += '<section class="enfant" id="sec-enfant-' + s.id + '">' +
+        '<svg class="marmite" viewBox="0 0 120 100" aria-hidden="true" fill="currentColor"><path d="M18 40h84v26a20 20 0 0 1-20 20H38a20 20 0 0 1-20-20z" opacity=".9"/><rect x="10" y="32" width="100" height="10" rx="5"/><path d="M4 48h10v14H4a7 7 0 0 1 0-14zM106 48h10a7 7 0 0 1 0 14h-10z"/></svg>' +
+        '<div class="enfant-tete"><h2>' + esc(t(D, lg, e.titre)) + '</h2><span class="prix">' + esc(prix(e.prix, lg)) + "</span></div>" +
+        '<p class="sous">' + esc(t(D, lg, e.detail)) + "</p>" + ex.html + "</section>";
+    }
+    return h + "</section>";
+  }
+
+  function contenu(D, lg, selection, actif) {
+    selection = selection || [];
+    var h = "";
+    if (D.allergenesValides && selection.length) {
+      var ok = Object.keys(D.allergenesParPlat).filter(function (k) {
+        return (D.nonValides || []).indexOf(k) < 0 && !(D.allergenesParPlat[k] || []).some(function (a) { return selection.indexOf(a) >= 0; });
+      }).length;
+      h += '<p class="resume-filtre" role="status">' + esc(tp(D, lg, "compatibles").replace("{n}", ok)) + "</p>";
+    }
+    D.services.forEach(function (s) {
+      var cache = actif && s.id !== actif;
+      h += '<div class="enveloppe"' + (cache ? " hidden" : "") + ' data-enveloppe="' + s.id + '">' + service(D, lg, s, selection) + "</div>";
+    });
+    return h;
+  }
+
+  function onglets(D, lg, actif) {
+    return D.services.map(function (s) {
+      return '<button type="button" class="onglet' + (s.id === actif ? " actif" : "") + '" data-aller="' + s.id +
+        '" aria-pressed="' + (s.id === actif ? "true" : "false") + '">' + esc(t(D, lg, s.onglet || s.titre)) + "</button>";
+    }).join("");
+  }
+
+  function legende(D, lg) {
+    var noms = D.allergenes[lg] || D.allergenes.fr;
+    return '<h2 class="legende-titre">' + esc(tp(D, lg, "legende")) + '</h2><ol class="legende">' +
+      noms.map(function (n, i) {
+        return "<li><b>" + (i + 1) + "</b>" + esc(n) + (lg !== "fr" ? ' <span class="fr" lang="fr">' + esc(D.allergenes.fr[i]) + "</span>" : "") + "</li>";
+      }).join("") + "</ol>";
+  }
+
+  return { esc: esc, t: t, tp: tp, prix: prix, contenu: contenu, onglets: onglets, legende: legende };
+})();
+
+
+(function () {
+  "use strict";
+  var D = MENU_DATA, C = MENU_CORE;
+  var codes = D.langues.map(function (l) { return l[0]; });
+  var LATIN = ["fr", "en", "es", "pt", "de", "nl", "it", "id"];
+  var CLE = "chaudron-langue";
+  var etat = { lg: "fr", selection: [], service: D.services[0].id };
+  var $ = function (s) { return document.querySelector(s); };
+
+  function detecter() {
+    try { var m = localStorage.getItem(CLE); if (m && codes.indexOf(m) >= 0) return m; } catch (e) { /* ignoré */ }
+    var prefs = (navigator.languages || [navigator.language || "fr"]).map(function (p) { return String(p).slice(0, 2).toLowerCase(); });
+    for (var i = 0; i < prefs.length; i++) if (codes.indexOf(prefs[i]) >= 0) return prefs[i];
+    return "fr";
+  }
+  function info(lg) { return D.langues.filter(function (l) { return l[0] === lg; })[0]; }
+
+  function rendreCarte() { $("#carte").innerHTML = C.contenu(D, etat.lg, etat.selection, etat.service); }
+
+  function rendre() {
+    var lg = etat.lg, l = info(lg);
+    document.documentElement.lang = lg;
+    document.documentElement.dir = l[2];
+    document.documentElement.classList.toggle("latin", LATIN.indexOf(lg) >= 0);
+    document.title = "Le Chaudron · " + C.t(D, lg, "carte");
+    document.querySelectorAll("[data-t]").forEach(function (el) { el.textContent = C.t(D, lg, el.getAttribute("data-t")); });
+    $("#accroche").textContent = C.t(D, lg, "accroche");
+    $("#txt-demo").textContent = C.t(D, lg, "demo");
+    $("#nom-langue").textContent = l[1];
+    $("#drapeau-langue").textContent = (D.drapeaux || {})[lg] || "";
+    var note = $("#note-trad");
+    note.hidden = lg === "fr";
+    note.textContent = lg === "fr" ? "" : C.t(D, lg, "trad");
+    $("#onglets").innerHTML = C.onglets(D, lg, etat.service);
+    rendreCarte();
+    $("#txt-allergies").textContent = C.tp(D, lg, "allergies");
+    $("#titre-allergies").textContent = C.tp(D, lg, "filtreTitre");
+    $("#btn-effacer").textContent = C.tp(D, lg, "effacer");
+    $("#btn-voir").textContent = C.tp(D, lg, "voir");
+    $("#legende").innerHTML = C.legende(D, lg);
+    rendreCases();
+    majCompteur();
+    rendreLangues();
+    animer();
+  }
+
+  function rendreLangues() {
+    var z = $("#liste-langues");
+    z.innerHTML = "";
+    D.langues.forEach(function (l) {
+      var b = document.createElement("button");
+      b.type = "button"; b.lang = l[0]; b.dir = l[2];
+      var dr = document.createElement("span");
+      dr.className = "drapeau"; dr.setAttribute("aria-hidden", "true");
+      dr.textContent = (D.drapeaux || {})[l[0]] || "";
+      b.appendChild(dr);
+      b.appendChild(document.createTextNode(l[1]));
+      b.setAttribute("aria-pressed", l[0] === etat.lg ? "true" : "false");
+      b.addEventListener("click", function () {
+        etat.lg = l[0];
+        try { localStorage.setItem(CLE, l[0]); } catch (e) { /* ignoré */ }
+        fermer($("#dlg-langue"));
+        rendre();
+      });
+      z.appendChild(b);
+    });
+  }
+
+  function majCompteur() {
+    var n = etat.selection.length;
+    $("#compteur").hidden = !n;
+    $("#compteur").textContent = n;
+    $("#btn-allergies").classList.toggle("actif", n > 0);
+  }
+
+  function rendreCases() {
+    var z = $("#cases"), lg = etat.lg, noms = D.allergenes[lg] || D.allergenes.fr;
+    z.innerHTML = "";
+    noms.forEach(function (nom, i) {
+      var num = i + 1;
+      var lab = document.createElement("label");
+      lab.className = "case";
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = etat.selection.indexOf(num) >= 0;
+      cb.addEventListener("change", function () {
+        if (cb.checked) { if (etat.selection.indexOf(num) < 0) etat.selection.push(num); }
+        else etat.selection = etat.selection.filter(function (x) { return x !== num; });
+        etat.selection.sort(function (a, b) { return a - b; });
+        rendreCarte(); majCompteur(); animerTout();
+      });
+      var b = document.createElement("b");
+      b.textContent = num;
+      var txt = document.createElement("span");
+      txt.textContent = nom;
+      if (lg !== "fr") {
+        var fr = document.createElement("span");
+        fr.className = "fr"; fr.lang = "fr"; fr.textContent = D.allergenes.fr[i];
+        txt.appendChild(fr);
+      }
+      lab.appendChild(cb); lab.appendChild(b); lab.appendChild(txt);
+      z.appendChild(lab);
+    });
+  }
+
+  var SEL = ".plat,.formule,.enfant,.vins-bloc";
+  function animerTout() { document.querySelectorAll(SEL).forEach(function (p) { p.classList.add("vu"); }); }
+  var obs = null;
+  function animer() {
+    var el = document.querySelectorAll(SEL);
+    var reduit = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduit || !("IntersectionObserver" in window)) { animerTout(); return; }
+    if (obs) obs.disconnect();
+    obs = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("vu"); obs.unobserve(e.target); } });
+    }, { rootMargin: "0px 0px -6% 0px" });
+    el.forEach(function (p, i) { p.style.transitionDelay = (i % 4) * 55 + "ms"; obs.observe(p); });
+  }
+
+  function ouvrirD(d) { if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open", ""); }
+  function fermer(d) { if (typeof d.close === "function" && d.open) d.close(); else d.removeAttribute("open"); }
+
+  document.documentElement.classList.add("anim");
+
+  // couverture : le couvercle se soulève
+  (function () {
+    var e = $("#entree");
+    if (!e) return;
+    var fait = false;
+    function lever() {
+      if (fait) return;
+      fait = true;
+      e.classList.add("fremit");
+      setTimeout(function () { e.classList.add("ouvert"); }, 240);
+      setTimeout(function () { e.classList.add("parti"); }, 1600);
+    }
+    e.addEventListener("click", lever);
+    $("#btn-entrer").addEventListener("click", lever);
+    ["wheel", "touchmove", "keydown"].forEach(function (ev) {
+      window.addEventListener(ev, lever, { passive: true, once: true });
+    });
+    setTimeout(lever, 3200);
+  })();
+
+  $("#btn-langue").addEventListener("click", function () { ouvrirD($("#dlg-langue")); });
+  $("#btn-allergies").addEventListener("click", function () { ouvrirD($("#dlg-allergies")); });
+  $("#btn-effacer").addEventListener("click", function () {
+    etat.selection = [];
+    rendreCases(); majCompteur(); rendreCarte(); animerTout();
+  });
+  $("#onglets").addEventListener("click", function (ev) {
+    var b = ev.target.closest(".onglet");
+    if (!b) return;
+    etat.service = b.getAttribute("data-aller");
+    $("#onglets").innerHTML = C.onglets(D, etat.lg, etat.service);
+    rendreCarte(); animer();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.querySelectorAll("[data-fermer]").forEach(function (b) {
+    b.addEventListener("click", function () { fermer(b.closest("dialog")); });
+  });
+  document.querySelectorAll("dialog").forEach(function (d) {
+    d.addEventListener("click", function (e) { if (e.target === d) fermer(d); });
+  });
+
+  etat.lg = detecter();
+  rendre();
+})();
+
+</script>
+</body></html>
